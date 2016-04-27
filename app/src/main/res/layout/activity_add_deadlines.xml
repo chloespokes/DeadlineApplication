@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"  >
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textCapWords"
+        android:text="Enter a Title..." />
+
+    <EditText
+        android:id="@+id/day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLength="2"
+        android:inputType="number"
+        android:layout_below="@+id/title" />
+
+    <Spinner
+        android:id="@+id/month"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:dropDownWidth="wrap_content"
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/day" />
+
+    <EditText
+        android:id="@+id/year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLength="4"
+        android:inputType="number"
+        android:layout_below="@+id/month" />
+
+    <TextView
+        android:id="@+id/textViewExtraNotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Extra Notes"
+        android:layout_below="@+id/year"
+        android:paddingLeft="10dp" />
+
+    <EditText
+        android:id="@+id/notes"
+        android:inputType="textMultiLine"
+        android:lines="5"
+        android:minLines="3"
+        android:gravity="top|left"
+        android:maxLines="6"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:scrollbars="vertical"
+        android:layout_below="@+id/textViewExtraNotes"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+
+</RelativeLayout>
