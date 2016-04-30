@@ -32,7 +32,7 @@
             android:layout_height="5px"
             android:paddingLeft="10dp" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/location"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -42,7 +42,14 @@
             android:paddingBottom="15dp"
             android:paddingLeft="10dp"
             android:layout_below="@+id/title"
-            android:background="@null" />
+            android:background="@null"/>
+
+        <fragment
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_below="@+id/location"
+            class="com.google.android.gms.maps.MapFragment" />
 
     </LinearLayout>
 
@@ -54,7 +61,6 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:layout_below="@+id/title_layout"
-        android:layout_marginTop="25dp"
         android:background="@color/white"
         android:paddingTop="12dp"
         android:paddingLeft="10dp"

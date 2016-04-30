@@ -1,20 +1,41 @@
 package com.example.craftycoders.deadlineapplication;
 
+import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.io.IOException;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Build;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
-import java.util.*;
 import android.graphics.Color;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import android.widget.Button;
+import android.location.Address;
+import android.location.Geocoder;
+import android.util.Log;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.Menu;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 
 /**
  * Created by Chloe on 27/04/16.
@@ -49,6 +70,19 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             "46", "47", "48", "49", "50", "51", "52",
             "53", "54", "55", "56", "57", "58", "59" };
 
+    private static final String[] predefined_locations = new String[] {
+            "Schofield, Loughborough University", "Haslegrave, Loughborough University",
+            "Business & Economics School, Loughborough University", "Edward Herbert, Loughborough University",
+            "Design School, Loughborough University", "James France, Loughborough University",
+            "Wolfson School, Loughborough University", "Brocklington, Loughborough University",
+            "Wavy Top, Loughborough University", "John Hardie, Loughborough University",
+    };
+
+    static final LatLng LOUGHBOROUGH = new LatLng(52.762913, -1.237816);
+    static final LatLng KIEL = new LatLng(53.551, 9.993);
+    private GoogleMap map;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +91,23 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         setTitle("Add New Deadline");
 
         //Log.i("System.out", "Hello!");
+
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.location);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, predefined_locations);
+        textView.setAdapter(adapter);
+
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+                .getMap();
+        final Marker marker_lboro = map.addMarker(new MarkerOptions().position(LOUGHBOROUGH)
+                .title("Loughborough University"));
+
+
+        // Move the camera instantly to hamburg with a zoom of 10.
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LOUGHBOROUGH, 10));
+
+        // Zoom in, animating the camera.
+        map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+
 
         //setting spinner for months
         spinner_month = (Spinner) findViewById(R.id.month);
@@ -96,6 +147,51 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         final EditText editYear = (EditText) findViewById(R.id.year);
         editYear.setText(string_current_year, TextView.BufferType.EDITABLE);
 
+        final EditText editLocation = (EditText) findViewById(R.id.location);
+        editLocation.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                //remove all markers
+                map.clear();
+
+                Geocoder geocoder = new Geocoder(AddDeadlines.this);
+                List<Address> addresses = null;
+                String selectedLocation = editLocation.getText().toString();
+
+                Log.i("System.out", selectedLocation);
+
+                try {
+                    Log.i("System.out", "try");
+                    addresses = geocoder.getFromLocationName(selectedLocation, 1);
+                } catch (IOException e) {
+                    Log.i("System.out", "catch");
+                    if("sdk".equals( Build.PRODUCT )) {
+                        Log.i("System.out", "Geocoder doesn't work under emulation.");
+                        //possibleAddresses = ReverseGeocode.getFromLocation(location.getLatitude(), location.getLongitude(), 3);
+                    } else
+                        e.printStackTrace();
+                }
+
+                if (addresses.size() > 0) {
+                    double latitude = addresses.get(0).getLatitude();
+                    double longitude = addresses.get(0).getLongitude();
+
+                    Log.i("System.out", "long:" + latitude);
+                    Log.i("System.out", "lat:" + longitude);
+
+                    LatLng NEW_LAT = new LatLng(latitude, longitude);
+                    final Marker marker_lboro = map.addMarker(new MarkerOptions().position(NEW_LAT)
+                            .title( selectedLocation ));
+                    // Move the camera instantly to hamburg with a zoom of 10.
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 10));
+                } else {
+                    Toast.makeText(AddDeadlines.this,
+                            "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
         //day validation
         editDay.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
@@ -104,17 +200,10 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 selectedMonth = spinner_month.getSelectedItemPosition();
                 selectedYear = Integer.valueOf(editYear.getText().toString());
 
-                if (selectedYear < 100 ) {
-                    selectedYear = Integer.valueOf( "20" + String.valueOf( selectedYear ));
-                } else if (selectedYear < 1000) {
-                    selectedYear = Integer.valueOf( "2" + String.valueOf( selectedYear ));
-                }
-                editYear.setText(Integer.toString(selectedYear));
-
                 String formatted_day = String.format("%02d", selectedDay);
                 String formatted_month = String.format("%02d", selectedMonth);
 
-                if ( !isValidDate( selectedYear + "-" + formatted_month + "-" + formatted_day )) {
+                if (!isValidDate(selectedYear + "-" + formatted_month + "-" + formatted_day)) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a valid date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
@@ -122,20 +211,15 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                     turn_black_date();
                 }
 
-                if(selectedYear < current_year)
-                {
+                if (selectedYear < current_year) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a future date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
-                }
-                else if(selectedMonth < current_month && selectedYear <= current_year)
-                {
+                } else if (selectedMonth < current_month && selectedYear <= current_year) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a future date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
-                }
-                else if(selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year)
-                {
+                } else if (selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a future date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
@@ -153,17 +237,17 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 selectedMonth = spinner_month.getSelectedItemPosition();
                 selectedYear = Integer.valueOf(editYear.getText().toString());
 
-                if (selectedYear < 100 ) {
-                    selectedYear = Integer.valueOf( "20" + String.valueOf( selectedYear ));
+                if (selectedYear < 100) {
+                    selectedYear = Integer.valueOf("20" + String.valueOf(selectedYear));
                 } else if (selectedYear < 1000) {
-                    selectedYear = Integer.valueOf( "2" + String.valueOf( selectedYear ));
+                    selectedYear = Integer.valueOf("2" + String.valueOf(selectedYear));
                 }
-                editYear.setText(Integer.toString( selectedYear) );
+                editYear.setText(Integer.toString(selectedYear));
 
                 String formatted_day = String.format("%02d", selectedDay);
                 String formatted_month = String.format("%02d", selectedMonth);
 
-                if ( !isValidDate( selectedYear + "-" + formatted_month + "-" + formatted_day )) {
+                if (!isValidDate(selectedYear + "-" + formatted_month + "-" + formatted_day)) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a valid date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
@@ -171,20 +255,15 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                     turn_black_date();
                 }
 
-                if(selectedYear < current_year)
-                {
+                if (selectedYear < current_year) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a future date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
-                }
-                else if(selectedMonth < current_month && selectedYear <= current_year)
-                {
+                } else if (selectedMonth < current_month && selectedYear <= current_year) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a future date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
-                }
-                else if(selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year)
-                {
+                } else if (selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year) {
                     Toast.makeText(AddDeadlines.this,
                             "Please enter a future date", Toast.LENGTH_SHORT).show();
                     turn_red_date();
@@ -193,6 +272,14 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 }
             }
         });
+
+        //initialise map
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
     }
 
     public void turn_red_date() {
