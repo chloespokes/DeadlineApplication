@@ -2,22 +2,19 @@ package com.example.craftycoders.deadlineapplication;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.app.Activity;
-import android.os.Bundle;
-import android.text.InputFilter;
-import android.text.Spanned;
-import android.util.Log;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.EditText;
-import android.text.TextWatcher;
 import android.widget.Toast;
 import java.util.*;
-
+import android.graphics.Color;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by Chloe on 27/04/16.
@@ -30,6 +27,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     int current_year = calendar.get(Calendar.YEAR);
     int current_hour = calendar.get(Calendar.HOUR_OF_DAY);
     int current_minute = calendar.get(Calendar.MINUTE);
+
+    int selectedDay, selectedMonth, selectedYear;
 
     private String[] month = { "January", "February", "March", "April",
             "May", "June", "July", "August", "September", "October", "November",
@@ -58,12 +57,10 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         setTitle("Add New Deadline");
 
         //Log.i("System.out", "Hello!");
-        //Log.i("System.out", Integer.toString(current_hour));
-        //Log.i("System.out", Integer.toString(current_minute));
 
         //setting spinner for months
         spinner_month = (Spinner) findViewById(R.id.month);
-        ArrayAdapter<String> adapter_state_month = new ArrayAdapter<String>(this,
+        final ArrayAdapter<String> adapter_state_month = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, month);
         adapter_state_month
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -88,24 +85,151 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         spinner_minutes.setAdapter(adapter_state_minutes);
         spinner_minutes.setOnItemSelectedListener(this);
 
-        //set current day, month, year
+        //set current day, month, year & time
         String string_current_day = Integer.toString( current_day );
-        EditText editDay = (EditText) findViewById(R.id.day);
+        final EditText editDay = (EditText) findViewById(R.id.day);
         editDay.setText(string_current_day, TextView.BufferType.EDITABLE);
-
-        //spinner.setAdapter(adapter_state);
         spinner_month.setSelection(current_month);
-        // spinner.setAdapter(adapter_state_2);
         spinner_hour.setSelection(current_hour);
-        // spinner.setAdapter(adapter_state_3);
         spinner_minutes.setSelection(current_minute);
-
-
         String string_current_year = Integer.toString( current_year );
-        EditText editYear = (EditText) findViewById(R.id.year);
-        editYear.setText( string_current_year, TextView.BufferType.EDITABLE );
+        final EditText editYear = (EditText) findViewById(R.id.year);
+        editYear.setText(string_current_year, TextView.BufferType.EDITABLE);
+
+        //day validation
+        editDay.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                selectedDay = Integer.valueOf(editDay.getText().toString());
+                selectedMonth = spinner_month.getSelectedItemPosition();
+                selectedYear = Integer.valueOf(editYear.getText().toString());
+
+                if (selectedYear < 100 ) {
+                    selectedYear = Integer.valueOf( "20" + String.valueOf( selectedYear ));
+                } else if (selectedYear < 1000) {
+                    selectedYear = Integer.valueOf( "2" + String.valueOf( selectedYear ));
+                }
+                editYear.setText(Integer.toString(selectedYear));
+
+                String formatted_day = String.format("%02d", selectedDay);
+                String formatted_month = String.format("%02d", selectedMonth);
+
+                if ( !isValidDate( selectedYear + "-" + formatted_month + "-" + formatted_day )) {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a valid date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                } else {
+                    turn_black_date();
+                }
+
+                if(selectedYear < current_year)
+                {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a future date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                }
+                else if(selectedMonth < current_month && selectedYear <= current_year)
+                {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a future date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                }
+                else if(selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year)
+                {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a future date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                } else {
+                    turn_black_date();
+                }
+            }
+        });
+
+        //year validation
+        editYear.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                selectedDay = Integer.valueOf(editDay.getText().toString());
+                selectedMonth = spinner_month.getSelectedItemPosition();
+                selectedYear = Integer.valueOf(editYear.getText().toString());
+
+                if (selectedYear < 100 ) {
+                    selectedYear = Integer.valueOf( "20" + String.valueOf( selectedYear ));
+                } else if (selectedYear < 1000) {
+                    selectedYear = Integer.valueOf( "2" + String.valueOf( selectedYear ));
+                }
+                editYear.setText(Integer.toString( selectedYear) );
+
+                String formatted_day = String.format("%02d", selectedDay);
+                String formatted_month = String.format("%02d", selectedMonth);
+
+                if ( !isValidDate( selectedYear + "-" + formatted_month + "-" + formatted_day )) {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a valid date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                } else {
+                    turn_black_date();
+                }
+
+                if(selectedYear < current_year)
+                {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a future date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                }
+                else if(selectedMonth < current_month && selectedYear <= current_year)
+                {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a future date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                }
+                else if(selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year)
+                {
+                    Toast.makeText(AddDeadlines.this,
+                            "Please enter a future date", Toast.LENGTH_SHORT).show();
+                    turn_red_date();
+                } else {
+                    turn_black_date();
+                }
+            }
+        });
     }
 
+    public void turn_red_date() {
+        final EditText editDay = (EditText) findViewById(R.id.day);
+        final EditText editYear = (EditText) findViewById(R.id.year);
+
+        editDay.setTextColor(Color.parseColor("#ff0000"));
+        TextView selectedText = (TextView) spinner_month.getChildAt(0);
+        if (selectedText != null) {
+            selectedText.setTextColor(Color.RED);
+        }
+        editYear.setTextColor(Color.parseColor("#ff0000"));
+    }
+
+    public void turn_black_date() {
+        final EditText editDay = (EditText) findViewById(R.id.day);
+        final EditText editYear = (EditText) findViewById(R.id.year);
+
+        editDay.setTextColor(Color.parseColor("#000000"));
+        TextView selectedText = (TextView) spinner_month.getChildAt(0);
+        if (selectedText != null) {
+            selectedText.setTextColor(Color.BLACK);
+        }
+        editYear.setTextColor(Color.parseColor("#000000"));
+    }
+
+    public static boolean isValidDate(String inDate) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        dateFormat.setLenient(false);
+        try {
+            dateFormat.parse(inDate.trim());
+        } catch (ParseException pe) {
+            return false;
+        }
+        return true;
+    }
 
     public void onItemSelected(AdapterView<?> parent, View view, int position,
                                long id) {
