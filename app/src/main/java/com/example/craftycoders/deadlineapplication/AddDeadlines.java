@@ -71,15 +71,27 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             "53", "54", "55", "56", "57", "58", "59" };
 
     private static final String[] predefined_locations = new String[] {
-            "Schofield, Loughborough University", "Haslegrave, Loughborough University",
-            "Business & Economics School, Loughborough University", "Edward Herbert, Loughborough University",
-            "Design School, Loughborough University", "James France, Loughborough University",
-            "Wolfson School, Loughborough University", "Brocklington, Loughborough University",
-            "Wavy Top, Loughborough University", "John Hardie, Loughborough University",
+            "Schofield, Loughborough University",
+            "Haslegrave, Loughborough University",
+            "Edward Herbert, Loughborough University",
+            "Business & Economics, Loughborough University",
+            "James France, Loughborough University",
+            "Brocklington, Loughborough University",
+            "Wavy Top, Loughborough University"
+    };
+
+    double[][] predefined_locations_coords = new double[][] {
+            { 52.766406, -1.228735 }, //schofieldd
+            { 52.766769, -1.228994 }, //haslegrave
+            { 52.765055, -1.227206 }, //ed hertbert
+            { 52.767195, -1.227838 }, //business
+            { 52.765062, -1.227227 }, //james france
+            { 52.765805, -1.227865 }, //brocklington
+            { 52.765351, -1.228155 } //wavy top
+
     };
 
     static final LatLng LOUGHBOROUGH = new LatLng(52.762913, -1.237816);
-    static final LatLng KIEL = new LatLng(53.551, 9.993);
     private GoogleMap map;
 
 
@@ -102,8 +114,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 .title("Loughborough University"));
 
 
-        // Move the camera instantly to hamburg with a zoom of 10.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LOUGHBOROUGH, 10));
+        // Move the camera instantly to hamburg with a zoom of 13.
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LOUGHBOROUGH, 13));
 
         // Zoom in, animating the camera.
         map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
@@ -160,6 +172,14 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
 
                 Log.i("System.out", selectedLocation);
 
+                int index = -1;
+                for (int i=0;i<predefined_locations.length;i++) {
+                    if (predefined_locations[i].equals(selectedLocation)) {
+                        index = i;
+                        break;
+                    }
+                }
+
                 try {
                     Log.i("System.out", "try");
                     addresses = geocoder.getFromLocationName(selectedLocation, 1);
@@ -172,9 +192,15 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                         e.printStackTrace();
                 }
 
-                if (addresses.size() > 0) {
-                    double latitude = addresses.get(0).getLatitude();
-                    double longitude = addresses.get(0).getLongitude();
+                if ( addresses.size() > 0 || index > -1 ) {
+                    double latitude, longitude;
+                    if ( addresses.size() > 0 ) {
+                        latitude = addresses.get(0).getLatitude();
+                        longitude = addresses.get(0).getLongitude();
+                    } else {
+                        latitude = predefined_locations_coords[index][0];
+                        longitude = predefined_locations_coords[index][1];
+                    }
 
                     Log.i("System.out", "long:" + latitude);
                     Log.i("System.out", "lat:" + longitude);
@@ -182,8 +208,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                     LatLng NEW_LAT = new LatLng(latitude, longitude);
                     final Marker marker_lboro = map.addMarker(new MarkerOptions().position(NEW_LAT)
                             .title( selectedLocation ));
-                    // Move the camera instantly to hamburg with a zoom of 10.
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 10));
+                    // Move the camera instantly to hamburg with a zoom of 15.
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 15));
                 } else {
                     Toast.makeText(AddDeadlines.this,
                             "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
