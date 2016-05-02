@@ -1,6 +1,5 @@
 package com.example.craftycoders.deadlineapplication;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 
@@ -8,6 +7,10 @@ import com.example.craftycoders.deadlineapplication.Models.Deadline;
 
 import java.util.Collection;
 import java.util.List;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 
 public class ViewDeadlines extends AppCompatActivity {
@@ -17,6 +20,7 @@ public class ViewDeadlines extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_view_deadlines);
 
         mAdapter = new DeadlineAdapter(this, R.layout.row_deadline_item);
