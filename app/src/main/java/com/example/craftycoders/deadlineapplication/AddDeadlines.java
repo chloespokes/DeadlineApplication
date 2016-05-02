@@ -36,12 +36,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
 /**
  * Created by Chloe on 27/04/16.
  */
 public class AddDeadlines extends AppCompatActivity implements OnItemSelectedListener {
     Spinner spinner_month, spinner_hour, spinner_minutes;
+
+    //get current date using Calendar
     Calendar calendar = Calendar.getInstance();
     int current_day = calendar.get(Calendar.DATE);
     int current_month = calendar.get(Calendar.MONTH);
@@ -88,7 +89,6 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             { 52.765062, -1.227227 }, //james france
             { 52.765805, -1.227865 }, //brocklington
             { 52.765351, -1.228155 } //wavy top
-
     };
 
     static final LatLng LOUGHBOROUGH = new LatLng(52.762913, -1.237816);
@@ -99,10 +99,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_deadlines);
-
         setTitle("Add New Deadline");
 
-        //Log.i("System.out", "Hello!");
 
         AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.location);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, predefined_locations);
@@ -113,38 +111,31 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         final Marker marker_lboro = map.addMarker(new MarkerOptions().position(LOUGHBOROUGH)
                 .title("Loughborough University"));
 
-
-        // Move the camera instantly to hamburg with a zoom of 13.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LOUGHBOROUGH, 13));
+        // Move the camera instantly to Loughborough with a zoom of 10.
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LOUGHBOROUGH, 10));
 
         // Zoom in, animating the camera.
-        map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+        map.animateCamera(CameraUpdateFactory.zoomTo(13), 2000, null);
 
 
         //setting spinner for months
         spinner_month = (Spinner) findViewById(R.id.month);
-        final ArrayAdapter<String> adapter_state_month = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, month);
-        adapter_state_month
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final ArrayAdapter<String> adapter_state_month = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, month);
+        adapter_state_month.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_month.setAdapter(adapter_state_month);
         spinner_month.setOnItemSelectedListener(this);
 
         //setting spinner for time (hours)
         spinner_hour = (Spinner) findViewById(R.id.time_hours);
-        ArrayAdapter<String> adapter_state_hour = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, time_hours);
-        adapter_state_hour
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter_state_hour = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, time_hours);
+        adapter_state_hour.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_hour.setAdapter(adapter_state_hour);
         spinner_hour.setOnItemSelectedListener(this);
 
         //setting spinner for time (minutes)
         spinner_minutes = (Spinner) findViewById(R.id.time_minutes);
-        ArrayAdapter<String> adapter_state_minutes = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, time_minutes);
-        adapter_state_minutes
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter_state_minutes = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, time_minutes);
+        adapter_state_minutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_minutes.setAdapter(adapter_state_minutes);
         spinner_minutes.setOnItemSelectedListener(this);
 
@@ -170,8 +161,6 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 List<Address> addresses = null;
                 String selectedLocation = editLocation.getText().toString();
 
-                Log.i("System.out", selectedLocation);
-
                 int index = -1;
                 for (int i=0;i<predefined_locations.length;i++) {
                     if (predefined_locations[i].equals(selectedLocation)) {
@@ -181,19 +170,17 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 }
 
                 try {
-                    Log.i("System.out", "try");
                     addresses = geocoder.getFromLocationName(selectedLocation, 1);
                 } catch (IOException e) {
-                    Log.i("System.out", "catch");
                     if("sdk".equals( Build.PRODUCT )) {
                         Log.i("System.out", "Geocoder doesn't work under emulation.");
-                        //possibleAddresses = ReverseGeocode.getFromLocation(location.getLatitude(), location.getLongitude(), 3);
                     } else
                         e.printStackTrace();
                 }
 
                 if ( addresses.size() > 0 || index > -1 ) {
                     double latitude, longitude;
+
                     if ( addresses.size() > 0 ) {
                         latitude = addresses.get(0).getLatitude();
                         longitude = addresses.get(0).getLongitude();
@@ -202,13 +189,10 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                         longitude = predefined_locations_coords[index][1];
                     }
 
-                    Log.i("System.out", "long:" + latitude);
-                    Log.i("System.out", "lat:" + longitude);
-
                     LatLng NEW_LAT = new LatLng(latitude, longitude);
                     final Marker marker_lboro = map.addMarker(new MarkerOptions().position(NEW_LAT)
                             .title( selectedLocation ));
-                    // Move the camera instantly to hamburg with a zoom of 15.
+                    // Move the camera instantly to new location with a zoom of 15.
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 15));
                 } else {
                     Toast.makeText(AddDeadlines.this,
