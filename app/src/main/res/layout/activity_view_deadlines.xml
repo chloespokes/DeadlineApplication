@@ -9,8 +9,24 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.craftycoders.deadlineapplication.ViewDeadlines">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:padding="6dip"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout">
+
+
+        <ListView
+            android:id="@+id/listViewToDo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/row_deadline_item"
+            android:padding="6dip"
+            android:layout_below="@+id/linearLayout">
+        </ListView>
+
+    </LinearLayout>
+
+
 </RelativeLayout>
