@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:gravity="left|center"
+    android:layout_width="wrap_content"
+    android:paddingBottom="10px"
+    android:paddingTop="10px"
+    android:paddingLeft="3px"
+    android:weightSum="1">
+    <TextView
+        android:id="@+id/deadlineTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:singleLine="true"
+        android:text="@string/DeadlineTitle"
+        android:textSize="15dip"
+        android:textStyle="bold"
+        android:textColor="#d08021"
+        android:paddingLeft="10dip">
+    </TextView>
+    <TextView
+        android:id="@+id/deadlineTimeRemaining"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:singleLine="false"
+        android:layout_marginLeft="10dip"
+        android:text="@string/TimeRemaining"
+        android:textSize="10dip"
+        android:textStyle="bold"
+        android:textColor="#7f0000"
+        android:layout_weight="0.17">
+    </TextView>
+
+</LinearLayout>
