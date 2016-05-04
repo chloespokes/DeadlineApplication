@@ -8,6 +8,9 @@ import java.io.IOException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Build;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
@@ -106,6 +109,12 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_deadlines);
 
+<<<<<<< HEAD
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+        setTitle("Add New Deadline");
+=======
         Bundle b = new Bundle();
         try {
             b = getIntent().getExtras();
@@ -136,6 +145,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             setTitle("Add New Deadline");
             //setContentView(R.layout.activity_add_deadlines);
         }
+>>>>>>> origin/master
 
         AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.location);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, predefined_locations);
@@ -384,9 +394,23 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.activity_main, menu);
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.standard_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.action_settings:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void turn_red_date() {
