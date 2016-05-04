@@ -44,7 +44,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     Spinner spinner_month, spinner_hour, spinner_minutes;
     private boolean editDeadlines, addResume;
     private String editTitle, editNotes;
-    private Integer editDateTime;
+    private Long editDateTime;
     private Float editLatitude, editLongitude;
     private Integer editDay, editMonth, editYear, editHour, editMinute;
 
@@ -120,7 +120,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             editTitle = b.getString("title");
             editLatitude = b.getFloat("latitude");
             editLongitude = b.getFloat("longitude");
-            editDateTime = b.getInt("date_time");
+            editDateTime = b.getLong("date_time");
             editNotes = b.getString("notes");
 
             setTitle("Edit " + editTitle + " Deadline");
@@ -130,7 +130,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 editTitle = b.getString("title");
                 editLatitude = b.getFloat("latitude");
                 editLongitude = b.getFloat("longitude");
-                editDateTime = b.getInt("date_time");
+                editDateTime = b.getLong("date_time");
                 editNotes = b.getString("notes");
             }
             setTitle("Add New Deadline");
@@ -219,7 +219,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 map.clear();
 
                 Geocoder geocoder = new Geocoder(AddDeadlines.this);
-                List<Address> addresses = null;
+                List<Address> addresses = new ArrayList<Address>();
                 String selectedLocation = editLocation.getText().toString();
 
                 int index = -1;
@@ -253,8 +253,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                     LatLng NEW_LAT = new LatLng(latitude, longitude);
                     final Marker marker_lboro = map.addMarker(new MarkerOptions().position(NEW_LAT)
                             .title( selectedLocation ));
-                    // Move the camera instantly to new location with a zoom of 15.
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 15));
+                    // Move the camera instantly to new location with a zoom of 18.
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
                 } else {
                     Toast.makeText(AddDeadlines.this,
                             "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
