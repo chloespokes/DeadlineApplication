@@ -2,10 +2,13 @@ package com.example.craftycoders.deadlineapplication;
 
 import android.os.Bundle;
 
+import android.util.Log;
 import android.widget.ListView;
 
+import com.example.craftycoders.deadlineapplication.Data.DbHelper;
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 public class ViewDeadlines extends AppCompatActivity {
 
     private DeadlineAdapter mAdapter;
+    private DbHelper mDbHelper = DbHelper.getInstance(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +30,7 @@ public class ViewDeadlines extends AppCompatActivity {
         listViewDeadline.setAdapter(mAdapter);
 
         PopulateImpendingDeadlines();
+
     }
 
     private void PopulateImpendingDeadlines() {
