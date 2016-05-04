@@ -3,17 +3,12 @@ package com.example.craftycoders.deadlineapplication;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
@@ -26,7 +21,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +46,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
     private static final Deadline deadline = new Deadline(
             "Mobile App",
             "I hate it",
-            1,
-            2,
+            1462568485978l,
             52.6274318f,
             -1.68335969f,
             false);
@@ -66,8 +59,6 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-
-        myToolbar.setTitle("View Deadline Information");
 
         //  Intent intent = getIntent();
         //Uri data = intent.getData();
@@ -125,15 +116,9 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         DateFormat dateFormat;
         dateFormat = DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.UK);
 
-      //  DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-        final TextView deadlineStartDate = (TextView) findViewById(R.id.startDate);
-        Date startDate = new Date(deadline.getStartDate());
-        deadlineStartDate.setText("Start Date: " + dateFormat.format(startDate));
-
-        final TextView deadlineEndDate = (TextView) findViewById(R.id.endDate);
-        Date endDate = new Date(deadline.getEndDate());
-        deadlineEndDate.setText("End Date: " + dateFormat.format(endDate));
+        final TextView deadlineEndDate = (TextView) findViewById(R.id.dueDate);
+        Date dueDate = new Date(deadline.getDueDate());
+        deadlineEndDate.setText("Due Date: " + dateFormat.format(dueDate));
 
         final TextView deadlineExtraNotes = (TextView) findViewById(R.id.notes);
         deadlineExtraNotes.setText(deadline.getNotes());
@@ -143,7 +128,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.edit_menu, menu);
         return true;
     }
 
@@ -161,7 +146,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
                 bundle.putString("title", deadline.getTitle());
                 bundle.putFloat("latitude", deadline.getLocationLat());
                 bundle.putFloat("longitude", deadline.getLocationLong());
-                bundle.putInt("date_time", deadline.getEndDate());
+                bundle.putLong("date_time", deadline.getDueDate());
                 bundle.putString("notes", deadline.getNotes());
                 return true;
             default:
