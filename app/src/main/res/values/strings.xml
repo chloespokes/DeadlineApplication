@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Deadline Application</string>
-
     <string name="title_activity_maps">Map</string>
     <string name="DeadlineTitle">Mobile App Coursework II</string>
     <string name="TimeRemaining">6 days 4 hours 3 minutes and 2 seconds remaining</string>
