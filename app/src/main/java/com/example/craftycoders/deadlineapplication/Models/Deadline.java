@@ -9,8 +9,7 @@ public class Deadline {
     private int mId;
     private String mTitle;
     private String mNotes;
-    private int mStartDate;
-    private int mEndDate;
+    private long mDueDate;
     private float mLocationLat;
     private float mLocationLong;
     private boolean mIsHandedIn;
@@ -19,11 +18,10 @@ public class Deadline {
 
     }
 
-    public Deadline(int id, String title, String notes, int startDate, int endDate, float locationLat,
+    public Deadline(int id, String title, String notes, long dueDate, float locationLat,
                     float locationLong, boolean isHandedIn){
         this.setId(id);
-        this.setEndDate(endDate);
-        this.setStartDate(startDate);
+        this.setDueDate(dueDate);
         this.setIsHandedIn(isHandedIn);
         this.setTitle(title);
         this.setNotes(notes);
@@ -40,11 +38,8 @@ public class Deadline {
     public String getNotes(){return this.mNotes;}
     public void setNotes(String notes){this.mNotes = notes;}
 
-    public int getStartDate(){return this.mStartDate;};
-    public void setStartDate(int startTime){this.mStartDate = startTime;}
-
-    public int getEndDate(){return this.mEndDate;};
-    public void setEndDate(int endDate){this.mEndDate = endDate;}
+    public long getDueDate(){return this.mDueDate;};
+    public void setDueDate(long dueDate){this.mDueDate = dueDate;}
 
     public float getLocationLat(){return this.mLocationLat;};
     public void setLocationLat(float locationLat){this.mLocationLat = locationLat;}

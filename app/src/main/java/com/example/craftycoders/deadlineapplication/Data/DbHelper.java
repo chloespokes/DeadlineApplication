@@ -31,8 +31,7 @@ public class DbHelper extends SQLiteOpenHelper{
     private static final String KEY_ID = "_ID";
     private static final String KEY_TITLE = "title";
     private static final String KEY_NOTES = "notes";
-    private static final String KEY_START_DATE = "start_date";
-    private static final String KEY_END_DATE = "end_date";
+    private static final String KEY_DUE_DATE = "due_date";
     private static final String KEY_LOC_LAT = "location_lat";
     private static final String KEY_LOC_LONG = "location_log";
     private static final String KEY_HAND_IN = "is_handed_in";
@@ -43,8 +42,7 @@ public class DbHelper extends SQLiteOpenHelper{
                     + KEY_ID + " INTEGER PRIMARY KEY ASC,"
                     + KEY_TITLE + " TEXT,"
                     + KEY_NOTES + " TEXT,"
-                    + KEY_START_DATE + " INTEGER,"
-                    + KEY_END_DATE  + " INTEGER,"
+                    + KEY_DUE_DATE + " LONG,"
                     + KEY_LOC_LAT + " FLOAT,"
                     + KEY_LOC_LONG + " FLOAT,"
                     + KEY_HAND_IN + " BOOLEAN"
@@ -100,8 +98,7 @@ public class DbHelper extends SQLiteOpenHelper{
         values.put(KEY_ID, deadline.getId());
         values.put(KEY_TITLE, deadline.getTitle());
         values.put(KEY_NOTES, deadline.getNotes());
-        values.put(KEY_START_DATE, deadline.getStartDate());
-        values.put(KEY_END_DATE, deadline.getEndDate());
+        values.put(KEY_DUE_DATE, deadline.getDueDate());
         values.put(KEY_LOC_LAT, deadline.getLocationLat());
         values.put(KEY_LOC_LONG, deadline.getLocationLong());;
         values.put(KEY_HAND_IN, deadline.getIsHandedIn());
@@ -119,8 +116,7 @@ public class DbHelper extends SQLiteOpenHelper{
                 KEY_ID,
                 KEY_TITLE,
                 KEY_NOTES,
-                KEY_START_DATE,
-                KEY_END_DATE,
+                KEY_DUE_DATE,
                 KEY_LOC_LAT,
                 KEY_LOC_LONG,
                 KEY_HAND_IN
@@ -131,11 +127,10 @@ public class DbHelper extends SQLiteOpenHelper{
                 Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1),
                 cursor.getString(2),
-                Integer.parseInt(cursor.getString(3)),
-                Integer.parseInt(cursor.getString(4)),
+                Long.parseLong(cursor.getString(3)),
+                Float.parseFloat(cursor.getString(4)),
                 Float.parseFloat(cursor.getString(5)),
-                Float.parseFloat(cursor.getString(6)),
-                Boolean.parseBoolean(cursor.getString(7))
+                Boolean.parseBoolean(cursor.getString(6))
         );
         return deadline;
     }
@@ -156,11 +151,10 @@ public class DbHelper extends SQLiteOpenHelper{
                         Integer.parseInt(cursor.getString(0)),
                         cursor.getString(1),
                         cursor.getString(2),
-                        Integer.parseInt(cursor.getString(3)),
-                        Integer.parseInt(cursor.getString(4)),
+                        Long.parseLong(cursor.getString(3)),
+                        Float.parseFloat(cursor.getString(4)),
                         Float.parseFloat(cursor.getString(5)),
-                        Float.parseFloat(cursor.getString(6)),
-                        Boolean.parseBoolean(cursor.getString(7))
+                        Boolean.parseBoolean(cursor.getString(6))
                 );
                 //Add to list
                 deadlineList.add(deadline);
@@ -178,8 +172,7 @@ public class DbHelper extends SQLiteOpenHelper{
         ContentValues values = new ContentValues();
         values.put(KEY_TITLE, deadline.getTitle());
         values.put(KEY_NOTES, deadline.getNotes());
-        values.put(KEY_START_DATE, deadline.getStartDate());
-        values.put(KEY_END_DATE, deadline.getEndDate());
+        values.put(KEY_DUE_DATE, deadline.getDueDate());
         values.put(KEY_LOC_LAT, deadline.getLocationLat());
         values.put(KEY_LOC_LONG, deadline.getLocationLong());
         values.put(KEY_HAND_IN, deadline.getIsHandedIn());
