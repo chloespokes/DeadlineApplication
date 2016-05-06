@@ -6,6 +6,7 @@ import java.sql.Timestamp;
  * Created by simonwalker on 30/04/2016.
  */
 public class Deadline {
+    private int mId;
     private String mTitle;
     private String mNotes;
     private long mDueDate;
@@ -17,8 +18,9 @@ public class Deadline {
 
     }
 
-    public Deadline(String title, String notes, long dueDate, float locationLat,
+    public Deadline(int id, String title, String notes, long dueDate, float locationLat,
                     float locationLong, boolean isHandedIn){
+        this.setId(id);
         this.setDueDate(dueDate);
         this.setIsHandedIn(isHandedIn);
         this.setTitle(title);
@@ -27,6 +29,8 @@ public class Deadline {
         this.setLocationLong(locationLong);
     }
 
+    public int getId(){return this.mId;}
+    public void setId(int id){this.mId = id;}
 
     public String getTitle(){return this.mTitle;}
     public void setTitle(String title){this.mTitle = title;}
