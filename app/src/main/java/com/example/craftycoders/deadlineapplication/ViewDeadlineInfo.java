@@ -44,6 +44,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
     }
 
     private static final Deadline deadline = new Deadline(
+            0,
             "Mobile App",
             "I hate it",
             1462568485978l,

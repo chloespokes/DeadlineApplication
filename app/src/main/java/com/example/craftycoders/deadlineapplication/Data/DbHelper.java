@@ -33,7 +33,7 @@ public class DbHelper extends SQLiteOpenHelper{
     private static final String KEY_NOTES = "notes";
     private static final String KEY_DUE_DATE = "due_date";
     private static final String KEY_LOC_LAT = "location_lat";
-    private static final String KEY_LOC_LONG = "location_log";
+    private static final String KEY_LOC_LONG = "location_long";
     private static final String KEY_HAND_IN = "is_handed_in";
 
     //CREATE TABLE deadline (_ID TEXT, title TEXT, notes TEXT, etc.);
@@ -66,7 +66,7 @@ public class DbHelper extends SQLiteOpenHelper{
 
     //Constructor
     public DbHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, DeadlinesContract.DATABASE_NAME, null, DeadlinesContract.DATABASE_VERSION);
         this.mCxt = context;
     }
 
@@ -86,41 +86,45 @@ public class DbHelper extends SQLiteOpenHelper{
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + DEADLINE_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DeadlinesContract.DEADLINE_TABLE_NAME);
         // Creating tables again
         onCreate(db);
     }
 
     //Adds new deadline to database
-    public void addDeadline(Deadline deadline){
+    public long addDeadline(ContentValues deadlineValues){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_ID, deadline.getId());
-        values.put(KEY_TITLE, deadline.getTitle());
-        values.put(KEY_NOTES, deadline.getNotes());
-        values.put(KEY_DUE_DATE, deadline.getDueDate());
-        values.put(KEY_LOC_LAT, deadline.getLocationLat());
-        values.put(KEY_LOC_LONG, deadline.getLocationLong());;
-        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
+
+//        ContentValues values = new ContentValues();
+//        values.put(KEY_ID, deadline.getId());
+//        values.put(KEY_TITLE, deadline.getTitle());
+//        values.put(KEY_NOTES, deadline.getNotes());
+//        values.put(KEY_DUE_DATE, deadline.getDueDate());
+//        values.put(KEY_LOC_LAT, deadline.getLocationLat());
+//        values.put(KEY_LOC_LONG, deadline.getLocationLong());;
+//        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
 
         //Inserting Row
-        db.insert(DEADLINE_TABLE_NAME, null, values);
+        long rowID = db.insert(DeadlinesContract.DEADLINE_TABLE_NAME, null, deadlineValues);
         db.close();//Closes db connection
+        Log.d("DBHELPER: ", "deadline successfully added");
+
+        return rowID;
     }
 
     //getDeadline: Takes a deadline name as input and returns a deadline object
     public Deadline getDeadline(int id){
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(DEADLINE_TABLE_NAME, new String[]{
-                KEY_ID,
-                KEY_TITLE,
-                KEY_NOTES,
-                KEY_DUE_DATE,
-                KEY_LOC_LAT,
-                KEY_LOC_LONG,
-                KEY_HAND_IN
-        }, KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
+        Cursor cursor = db.query(DeadlinesContract.DEADLINE_TABLE_NAME, new String[]{
+                DeadlinesContract.KEY_ID,
+                DeadlinesContract.KEY_TITLE,
+                DeadlinesContract.KEY_NOTES,
+                DeadlinesContract.KEY_DUE_DATE,
+                DeadlinesContract.KEY_LOC_LAT,
+                DeadlinesContract.KEY_LOC_LONG,
+                DeadlinesContract.KEY_HAND_IN
+        }, DeadlinesContract.KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
         Deadline deadline = new Deadline(
@@ -135,12 +139,12 @@ public class DbHelper extends SQLiteOpenHelper{
         return deadline;
     }
 
-    //getAllDeadlines: Takes returns a List of all deadline in the database
+    //getAllDeadlines:  returns a List of all deadline in the database
     public List<Deadline> getAllDeadlines(){
         List<Deadline> deadlineList = new ArrayList<Deadline>();
 
         //Select All Query
-        String selectQuery = "SELECT * FROM " + DEADLINE_TABLE_NAME;
+        String selectQuery = "SELECT * FROM " + DeadlinesContract.DEADLINE_TABLE_NAME;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -166,26 +170,68 @@ public class DbHelper extends SQLiteOpenHelper{
 
     }
 
-    //takes an updated deadline object and return
-    public int updateDeadline(Deadline deadline) {
+    //getAllDeadlines:  returns a List of all deadline in the database
+    public Cursor getAllDeadlinesProvider(){
+
+        //Select All Query
+        String selectQuery = "SELECT * FROM " + DeadlinesContract.DEADLINE_TABLE_NAME;
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_TITLE, deadline.getTitle());
-        values.put(KEY_NOTES, deadline.getNotes());
-        values.put(KEY_DUE_DATE, deadline.getDueDate());
-        values.put(KEY_LOC_LAT, deadline.getLocationLat());
-        values.put(KEY_LOC_LONG, deadline.getLocationLong());
-        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
+        return db.rawQuery(selectQuery, null);
+
+    }
+
+    //getAllDeadlines:  returns a List of all deadline in the database
+    public Cursor getDeadline(String deadlineId){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(DeadlinesContract.DEADLINE_TABLE_NAME, new String[]{
+                DeadlinesContract.KEY_ID,
+                DeadlinesContract.KEY_TITLE,
+                DeadlinesContract.KEY_NOTES,
+                DeadlinesContract.KEY_DUE_DATE,
+                DeadlinesContract.KEY_LOC_LAT,
+                DeadlinesContract.KEY_LOC_LONG,
+                DeadlinesContract.KEY_HAND_IN
+        }, DeadlinesContract.KEY_ID + "=?", new String[]{deadlineId}, null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        return cursor;
+    }
+
+
+    //takes an updated deadline object and return
+    public int updateDeadline(ContentValues deadlineValues, String deadlineId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues values = new ContentValues();
+//        values.put(KEY_TITLE, deadline.getTitle());
+//        values.put(KEY_NOTES, deadline.getNotes());
+//        values.put(KEY_DUE_DATE, deadline.getDueDate());
+//        values.put(KEY_LOC_LAT, deadline.getLocationLat());
+//        values.put(KEY_LOC_LONG, deadline.getLocationLong());
+//        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
         // updating row
-        return db.update(DEADLINE_TABLE_NAME, values, KEY_ID + " = ?",
-                new String[]{String.valueOf(deadline.getId())});
+        return db.update(DeadlinesContract.DEADLINE_TABLE_NAME, deadlineValues, DeadlinesContract.KEY_ID + " = ?",
+                new String[]{deadlineId});
     }
 
     //DELETE RECORD
-    public void deleteShop(Deadline deadline) {
+    public int deleteDeadline(String deadlineId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(DEADLINE_TABLE_NAME, KEY_ID + " = ?",
-                new String[]{String.valueOf(deadline.getId())});
+        int count = db.delete(DeadlinesContract.DEADLINE_TABLE_NAME, DeadlinesContract.KEY_ID + " = ?",
+                new String[]{deadlineId});
         db.close();
+
+        return count;
+    }
+
+    //DELETE RECORD
+    public int deleteAllDeadlines(String selection, String[] selectionArgs) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = db.delete(DeadlinesContract.DEADLINE_TABLE_NAME, selection, selectionArgs);
+
+        db.close();
+
+        return count;
     }
 }
