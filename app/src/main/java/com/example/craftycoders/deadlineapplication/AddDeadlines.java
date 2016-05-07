@@ -109,12 +109,11 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_deadlines);
 
-<<<<<<< HEAD
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
         setTitle("Add New Deadline");
-=======
+
         Bundle b = new Bundle();
         try {
             b = getIntent().getExtras();
@@ -145,7 +144,6 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             setTitle("Add New Deadline");
             //setContentView(R.layout.activity_add_deadlines);
         }
->>>>>>> origin/master
 
         AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.location);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, predefined_locations);
