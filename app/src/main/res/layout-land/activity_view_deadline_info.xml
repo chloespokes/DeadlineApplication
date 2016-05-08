@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/my_toolbar">
+
+        <LinearLayout
+            android:id="@+id/scrollInnerLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:orientation="horizontal"
+                android:weightSum="1.0">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:paddingTop="12dp"
+                    android:paddingLeft="10dp"
+                    android:paddingBottom="10dp"
+                    android:layout_weight=".5"
+                    android:orientation="vertical"
+                    android:layout_width="0dip"
+                    android:background="@null" />
+
+                <TextView
+                    android:id="@+id/locationTitle"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingLeft="10dp"
+                    android:textSize="14sp"
+                    android:background="@null"
+                    android:layout_weight=".5"
+                    android:layout_width="0dip"
+                    android:text="Location:"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:orientation="horizontal"
+                android:weightSum="1.0">
+
+                <TextView
+                    android:id="@+id/dueDate"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:paddingLeft="10dp"
+                    android:paddingBottom="10dp"
+                    android:layout_width="0dip" />
+
+                <TextView
+                    android:id="@+id/location"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="15dp"
+                    android:paddingLeft="10dp"
+                    android:paddingBottom="10dp"
+                    android:layout_weight=".5"
+                    android:layout_width="0dip"
+                    android:background="@null"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/map_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:background="@color/white">
+
+                <fragment
+                    android:id="@+id/map"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    class="com.google.android.gms.maps.MapFragment" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/extra_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:gravity="start"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:layout_marginTop="15dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
+
+                <TextView
+                    android:id="@+id/textViewExtraNotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Extra Notes:"
+                    android:layout_below="@+id/dateTime_layout"
+                    android:textSize="16dp"
+                    android:paddingRight="10dp" />
+
+                <TextView
+                    android:id="@+id/notes"
+                    android:lines="5"
+                    android:minLines="3"
+                    android:gravity="top|start"
+                    android:maxLines="6"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:scrollbars="vertical"
+                    android:paddingRight="10dp"
+                    android:background="@null" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>
