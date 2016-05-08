@@ -18,8 +18,7 @@
         <activity android:name=".ViewDeadlines" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -29,6 +28,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.craftycoders.deadlineapplication.ViewDeadlines" />
 
+            <intent-filter>
+                <action android:name="android.intent.action.ADDDEADLINES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <meta-data
@@ -43,6 +46,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.craftycoders.deadlineapplication.ViewDeadlines" />
 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEWDEADLINES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <provider android:name=".Data.DeadlineProvider"

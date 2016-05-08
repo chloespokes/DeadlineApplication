@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.support.v4.app.NavUtils;
 import android.content.ContentResolver;
@@ -53,6 +54,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Created by Chloe on 27/04/16.
  */
 public class AddDeadlines extends AppCompatActivity implements OnItemSelectedListener {
+    private String TAG = "AddDeadlinesActivity";
+
     //Edit/resume variables
     boolean editDeadlines, addResume, dateInvalid;
     private String editTitle, editNotes;

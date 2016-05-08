@@ -35,6 +35,7 @@ public class DbHelper extends SQLiteOpenHelper{
     private static final String KEY_LOC_LAT = "location_lat";
     private static final String KEY_LOC_LONG = "location_long";
     private static final String KEY_HAND_IN = "is_handed_in";
+    private static final String KEY_CALENDAR_SYNC = "calendar_sync";
 
     //CREATE TABLE deadline (_ID TEXT, title TEXT, notes TEXT, etc.);
     private static final String DEADLINE_TABLE_CREATE =
@@ -46,6 +47,7 @@ public class DbHelper extends SQLiteOpenHelper{
                     + KEY_LOC_LAT + " FLOAT,"
                     + KEY_LOC_LONG + " FLOAT,"
                     + KEY_HAND_IN + " BOOLEAN"
+                    + KEY_CALENDAR_SYNC + " BOOLEAN"
                     +")";
 
     private Context mCxt;
@@ -103,6 +105,7 @@ public class DbHelper extends SQLiteOpenHelper{
 //        values.put(KEY_LOC_LAT, deadline.getLocationLat());
 //        values.put(KEY_LOC_LONG, deadline.getLocationLong());;
 //        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
+//        values.put(KEY_CALENDAR_SYNC, deadline.getIsCalendarSync());
 
         //Inserting Row
         long rowID = db.insert(DeadlinesContract.DEADLINE_TABLE_NAME, null, deadlineValues);
@@ -123,7 +126,8 @@ public class DbHelper extends SQLiteOpenHelper{
                 DeadlinesContract.KEY_DUE_DATE,
                 DeadlinesContract.KEY_LOC_LAT,
                 DeadlinesContract.KEY_LOC_LONG,
-                DeadlinesContract.KEY_HAND_IN
+                DeadlinesContract.KEY_HAND_IN,
+                DeadlinesContract.KEY_CALENDAR_SYNC
         }, DeadlinesContract.KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
@@ -134,6 +138,7 @@ public class DbHelper extends SQLiteOpenHelper{
                 Long.parseLong(cursor.getString(3)),
                 Float.parseFloat(cursor.getString(4)),
                 Float.parseFloat(cursor.getString(5)),
+                Boolean.parseBoolean(cursor.getString(6)),
                 Boolean.parseBoolean(cursor.getString(6))
         );
         return deadline;
@@ -158,6 +163,7 @@ public class DbHelper extends SQLiteOpenHelper{
                         Long.parseLong(cursor.getString(3)),
                         Float.parseFloat(cursor.getString(4)),
                         Float.parseFloat(cursor.getString(5)),
+                        Boolean.parseBoolean(cursor.getString(6)),
                         Boolean.parseBoolean(cursor.getString(6))
                 );
                 //Add to list
@@ -191,7 +197,8 @@ public class DbHelper extends SQLiteOpenHelper{
                 DeadlinesContract.KEY_DUE_DATE,
                 DeadlinesContract.KEY_LOC_LAT,
                 DeadlinesContract.KEY_LOC_LONG,
-                DeadlinesContract.KEY_HAND_IN
+                DeadlinesContract.KEY_HAND_IN,
+                DeadlinesContract.KEY_CALENDAR_SYNC
         }, DeadlinesContract.KEY_ID + "=?", new String[]{deadlineId}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
@@ -210,6 +217,7 @@ public class DbHelper extends SQLiteOpenHelper{
 //        values.put(KEY_LOC_LAT, deadline.getLocationLat());
 //        values.put(KEY_LOC_LONG, deadline.getLocationLong());
 //        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
+//        values.put(KEY_CALENDAR_SYNC, deadline.getIsCalendarSync());
         // updating row
         return db.update(DeadlinesContract.DEADLINE_TABLE_NAME, deadlineValues, DeadlinesContract.KEY_ID + " = ?",
                 new String[]{deadlineId});
