@@ -4,12 +4,15 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract;
 
 import android.widget.ListView;
 
@@ -18,11 +21,18 @@ import com.example.craftycoders.deadlineapplication.Data.DeadlineProvider;
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 
 public class ViewDeadlines extends AppCompatActivity {
@@ -51,6 +61,8 @@ public class ViewDeadlines extends AppCompatActivity {
         //AddDeadline();
         GetAllDeadlines();
 
+        CalendarSyncTask task = new CalendarSyncTask();
+        task.execute(new String[] { "http://www.vogella.com" });
     }
 
     @Override
@@ -161,6 +173,37 @@ public class ViewDeadlines extends AppCompatActivity {
         return allDeadlines;
 
     }
+
+
+    private class CalendarSyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String response = "";
+
+            final List<Deadline> finalDeadlines = GetAllDeadlines();
+
+            for (Deadline item : finalDeadlines) {
+
+                Intent intent = new Intent(Intent.ACTION_INSERT)
+                        .setData(Events.CONTENT_URI)
+                        .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, item.getDueDate())
+                        .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, (item.getDueDate()+3600000)) //add hour
+                        .putExtra(Events.TITLE, item.getTitle())
+                        .putExtra(Events.DESCRIPTION, item.getNotes())
+                        .putExtra(Events.EVENT_LOCATION, "The gym")
+                        .putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
+                startActivity(intent);
+            }
+
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Result",result);
+        }
+    }
+
 
 
 
