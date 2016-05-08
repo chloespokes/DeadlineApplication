@@ -90,7 +90,7 @@ public class ViewDeadlines extends AppCompatActivity  {
                 //start activity to add new deadline
                 Intent intent = new Intent(ViewDeadlines.this, AddDeadlines.class );
                 startActivity(intent);
-                //finish();
+                finish();
             }
         });
 
