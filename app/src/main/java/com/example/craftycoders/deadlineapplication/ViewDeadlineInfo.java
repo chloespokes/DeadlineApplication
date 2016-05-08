@@ -126,6 +126,12 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         deadlineExtraNotes.setText(deadline.getNotes());
     }
 
+    public void onBackPressed() {
+        //Go back to ViewDeadlines when back clicked
+        Intent intent = new Intent(ViewDeadlineInfo.this, ViewDeadlines.class );
+        startActivity(intent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {

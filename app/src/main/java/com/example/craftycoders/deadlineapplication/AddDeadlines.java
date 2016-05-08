@@ -491,6 +491,11 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
        // Log.d(TAG, receiver + " " + message);*/
     }
 
+    public void onBackPressed() {
+        //Go back to ViewDeadlines when back clicked
+        Intent intent = new Intent(AddDeadlines.this, ViewDeadlines.class );
+        startActivity(intent);
+    }
 
     protected void onResume() {
         super.onResume();
