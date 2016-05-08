@@ -33,10 +33,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:listitem="@layout/row_deadline_item"
-            android:padding="6dip"
-            android:layout_below="@+id/linearLayout">
+            android:padding="6dip">
         </ListView>
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout" >
+
+        <Button
+            android:id="@+id/syncButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/sync_calendar_button"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="#fff"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp" />
+
+        <Button
+            android:id="@+id/addDeadlineButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/plus_button"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="#fff"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="15dp" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

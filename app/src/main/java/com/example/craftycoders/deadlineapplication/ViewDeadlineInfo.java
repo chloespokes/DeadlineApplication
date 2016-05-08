@@ -50,6 +50,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
             1462568485978l,
             52.6274318f,
             -1.68335969f,
+            false,
             false);
 
     @Override
