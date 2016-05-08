@@ -57,7 +57,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     private String TAG = "AddDeadlinesActivity";
 
     //Edit/resume variables
-    boolean editDeadlines, addResume, dateInvalid;
+    boolean editDeadlines, addResume, dateInvalid, formInvalid;
     private String editTitle, editNotes;
     private Long editDateTime;
     private Float editLatitude, editLongitude;
@@ -258,6 +258,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             public void onFocusChange(View v, boolean hasFocus) {
                 //remove all markers
                 map.clear();
+                longitude = 0;
+                latitude = 0;
 
                 //once user has finished editing location, search for lat and long
                 if (!hasFocus) {
@@ -305,6 +307,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                     } else {
                         Toast.makeText(AddDeadlines.this,
                                 "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
+                        longitude = 0;
+                        latitude = 0;
                     }
                 }
             }
@@ -404,13 +408,22 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     }
 
     public void addNewDeadline(View view) throws ParseException {
+        formInvalid = false;
+
+        editTextTitle = (EditText) findViewById(R.id.title);
+        editTextNotesText = (EditText) findViewById(R.id.notes);
+
+        if (isEmpty(editTextTitle) || isEmpty(editTextNotesText) || latitude == 0 || longitude == 0) {
+            formInvalid = true;
+        }
+
         if (dateInvalid) {
             Toast.makeText(AddDeadlines.this,
                     "Please validate all fields in red", Toast.LENGTH_LONG).show();
+        } else if (formInvalid) {
+            Toast.makeText(AddDeadlines.this,
+                    "Please enter all fields", Toast.LENGTH_LONG).show();
         } else {
-            editTextTitle = (EditText) findViewById(R.id.title);
-            editTextNotesText = (EditText) findViewById(R.id.notes);
-
             String title = (isEmpty(editTextTitle)) ? "" : editTextTitle.getText().toString();
             String notes = (isEmpty(editTextNotesText)) ? "" : editTextNotesText.getText().toString();
 
@@ -448,6 +461,11 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
 
             //return to parent activity
             NavUtils.navigateUpFromSameTask(this);*/
+
+            //take activity back to view deadline
+            Intent intent = new Intent(AddDeadlines.this, ViewDeadlines.class );
+            startActivity(intent);
+            finish();
         }
     }
 
