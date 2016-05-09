@@ -222,7 +222,8 @@
                     android:text="Add Deadline"
                     android:id="@+id/addDeadlineButton"
                     android:layout_gravity="right"
-                    android:paddingBottom="15dp" />
+                    android:paddingBottom="15dp"
+                    android:onClick="addNewDeadline" />
 
             </LinearLayout>
 

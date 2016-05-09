@@ -1,16 +1,27 @@
 package com.example.craftycoders.deadlineapplication;
 
+
+import com.example.craftycoders.deadlineapplication.AddDeadlines;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract;
 
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.craftycoders.deadlineapplication.Data.DbHelper;
@@ -18,18 +29,27 @@ import com.example.craftycoders.deadlineapplication.Data.DeadlineProvider;
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
-public class ViewDeadlines extends AppCompatActivity {
+
+public class ViewDeadlines extends AppCompatActivity  {
 
     private DeadlineAdapter mAdapter;
     private DbHelper mDbHelper = DbHelper.getInstance(this);
     private String TAG = "ViewDeadlinesActivity";
+
+    Button clickSync, clickAddDeadline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +68,31 @@ public class ViewDeadlines extends AppCompatActivity {
 
         PopulateImpendingDeadlines();
 
-        //AddDeadline();
+        AddDeadline();
         GetAllDeadlines();
+
+
+
+        clickSync = (Button) findViewById(R.id.syncButton);
+        clickSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //sync to calendar, needs to be executed in sync button
+                /*CalendarSyncTask task = new CalendarSyncTask();
+                task.execute(new String[] { "sync to db" });*/
+            }
+        });
+
+        clickAddDeadline = (Button) findViewById(R.id.addDeadlineButton);
+        clickAddDeadline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //start activity to add new deadline
+                Intent intent = new Intent(ViewDeadlines.this, AddDeadlines.class );
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 
@@ -161,6 +204,43 @@ public class ViewDeadlines extends AppCompatActivity {
         return allDeadlines;
 
     }
+
+
+    private class CalendarSyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String response = "";
+
+            final List<Deadline> finalDeadlines = GetAllDeadlines();
+
+            for (Deadline item : finalDeadlines) {
+
+                if ( !item.getCalendarSync() ) {
+                    //if not already synced to calendar, run sync
+                    Intent intent = new Intent(Intent.ACTION_INSERT)
+                            .setData(Events.CONTENT_URI)
+                            .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, item.getDueDate())
+                            .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, (item.getDueDate() + 3600000)) //add hour
+                            .putExtra(Events.TITLE, item.getTitle())
+                            .putExtra(Events.DESCRIPTION, item.getNotes())
+                            .putExtra(Events.EVENT_LOCATION, "The gym")
+                            .putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
+                    startActivity(intent);
+
+                    //update synced to calendar field as 1
+                    //update DB URI
+                }
+            }
+
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Result",result);
+        }
+    }
+
 
 
 

@@ -33,7 +33,8 @@ public class DeadlineRepo {
                         DeadlinesContract.KEY_DUE_DATE,
                         DeadlinesContract.KEY_LOC_LAT,
                         DeadlinesContract.KEY_LOC_LONG,
-                        DeadlinesContract.KEY_HAND_IN
+                        DeadlinesContract.KEY_HAND_IN,
+                        DeadlinesContract.KEY_CALENDAR_SYNC
                 };
 
         // Defines a string to contain the selection clause
@@ -84,6 +85,7 @@ public class DeadlineRepo {
         values.put(DeadlinesContract.KEY_LOC_LAT, 2532);
         values.put(DeadlinesContract.KEY_LOC_LONG, 65326);
         values.put(DeadlinesContract.KEY_HAND_IN, false);
+        values.put(DeadlinesContract.KEY_CALENDAR_SYNC, false);
 
         try{
             Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
