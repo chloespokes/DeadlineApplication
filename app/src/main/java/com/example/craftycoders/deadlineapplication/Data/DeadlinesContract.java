@@ -10,7 +10,7 @@ public class DeadlinesContract {
     // Database Name
     public static final String DATABASE_NAME = "deadlineData.db";
     // Database Version
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     // Deadline Table name
     public static final String DEADLINE_TABLE_NAME = "deadlines";
 
@@ -22,6 +22,7 @@ public class DeadlinesContract {
     public static final String KEY_LOC_LAT = "location_lat";
     public static final String KEY_LOC_LONG = "location_long";
     public static final String KEY_HAND_IN = "is_handed_in";
+    public static final String KEY_CALENDAR_SYNC = "calendar_sync";
 
     //URIs
     public static final String PROVIDER_NAME = "com.example.provider.CraftyCoders";

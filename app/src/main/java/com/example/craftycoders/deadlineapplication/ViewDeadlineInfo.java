@@ -50,6 +50,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
             1462568485978l,
             52.6274318f,
             -1.68335969f,
+            false,
             false);
 
     @Override
@@ -123,6 +124,12 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
         final TextView deadlineExtraNotes = (TextView) findViewById(R.id.notes);
         deadlineExtraNotes.setText(deadline.getNotes());
+    }
+
+    public void onBackPressed() {
+        //Go back to ViewDeadlines when back clicked
+        Intent intent = new Intent(ViewDeadlineInfo.this, ViewDeadlines.class );
+        startActivity(intent);
     }
 
     @Override

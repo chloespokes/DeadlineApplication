@@ -13,13 +13,14 @@ public class Deadline {
     private float mLocationLat;
     private float mLocationLong;
     private boolean mIsHandedIn;
+    private boolean mCalendarSync;
 
     public Deadline(){
 
     }
 
     public Deadline(int id, String title, String notes, long dueDate, float locationLat,
-                    float locationLong, boolean isHandedIn){
+                    float locationLong, boolean isHandedIn, boolean calendarSync){
         this.setId(id);
         this.setDueDate(dueDate);
         this.setIsHandedIn(isHandedIn);
@@ -27,6 +28,7 @@ public class Deadline {
         this.setNotes(notes);
         this.setLocationLat(locationLat);
         this.setLocationLong(locationLong);
+        this.setCalendarSync(calendarSync);
     }
 
     public int getId(){return this.mId;}
@@ -49,6 +51,9 @@ public class Deadline {
 
     public boolean getIsHandedIn(){return this.mIsHandedIn;};
     public void setIsHandedIn(boolean isHandedIn){this.mIsHandedIn = isHandedIn;}
+
+    public boolean getCalendarSync(){return this.mCalendarSync;};
+    public void setCalendarSync(boolean calendarSync){this.mIsHandedIn = calendarSync;}
 
 
 }
