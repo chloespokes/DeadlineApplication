@@ -29,7 +29,5 @@ public class DeadlinesContract {
     public static final String URL = "content://" + PROVIDER_NAME + "/deadlines";
     public static final Uri CONTENT_URI = Uri.parse(URL);
 
-
-
 }
 

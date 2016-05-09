@@ -50,16 +50,16 @@ public class DeadlineAdapter extends ArrayAdapter<Deadline> {
         final TextView title = (TextView) row.findViewById(R.id.deadlineTitle);
         final TextView timeRemaining = (TextView) row.findViewById(R.id.deadlineTimeRemaining);
         title.setText(currentItem.getTitle());
-        timeRemaining.setText(CreateTimeRemainingString(currentItem));
+        timeRemaining.setText(CreateTimeRemainingString(currentItem.getDueDate()));
 
         return row;
     }
 
-    private String CreateTimeRemainingString(Deadline deadline){
+    private String CreateTimeRemainingString(long deadlineDueDateMs){
 
         // TODO: 30/04/2016 Convert time remaining to string for displaying maybe extract into utils class
 
-        String timeRemainingAsString = "4 days 3 hours 2 minutes 30 seconds remaining";
+        String timeRemainingAsString = Utils.ConvertDueDateToTimeRemaining(deadlineDueDateMs);
 
         return timeRemainingAsString;
     }

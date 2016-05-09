@@ -3,7 +3,10 @@ package com.example.craftycoders.deadlineapplication;
 
 import com.example.craftycoders.deadlineapplication.AddDeadlines;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
@@ -27,6 +30,7 @@ import android.widget.ListView;
 import com.example.craftycoders.deadlineapplication.Data.DbHelper;
 import com.example.craftycoders.deadlineapplication.Data.DeadlineProvider;
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
+import com.example.craftycoders.deadlineapplication.Models.AlarmReceiver;
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
 
 import java.io.BufferedReader;
@@ -48,6 +52,8 @@ public class ViewDeadlines extends AppCompatActivity  {
     private DeadlineAdapter mAdapter;
     private DbHelper mDbHelper = DbHelper.getInstance(this);
     private String TAG = "ViewDeadlinesActivity";
+    private int mDeadlineReminderIntervalMs = 86400000;
+    private boolean mConfiguredReminders = false;
 
     Button clickSync, clickAddDeadline;
 
@@ -68,9 +74,9 @@ public class ViewDeadlines extends AppCompatActivity  {
 
         PopulateImpendingDeadlines();
 
-        AddDeadline();
-        GetAllDeadlines();
-
+        if(!mConfiguredReminders){
+            ConfigureDeadlineReminders();
+        }
 
 
         clickSync = (Button) findViewById(R.id.syncButton);
@@ -78,8 +84,14 @@ public class ViewDeadlines extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
                 //sync to calendar, needs to be executed in sync button
-                /*CalendarSyncTask task = new CalendarSyncTask();
-                task.execute(new String[] { "sync to db" });*/
+                CalendarSyncTask task = new CalendarSyncTask();
+                try{
+                    task.execute(new String[] { "sync to db" });
+                    Log.d(TAG, "Successfully synced deadlines to calendar");
+                }
+                catch(Exception e){
+                    Log.d(TAG, e.getMessage());
+                }
             }
         });
 
@@ -132,10 +144,9 @@ public class ViewDeadlines extends AppCompatActivity  {
 
     private void AddDeadline(){
         ContentValues values = new ContentValues();
-        values.put(DeadlinesContract.KEY_ID, 10);
         values.put(DeadlinesContract.KEY_TITLE, "MAD");
         values.put(DeadlinesContract.KEY_NOTES, "these are notes");
-        values.put(DeadlinesContract.KEY_DUE_DATE, 3654378);
+        values.put(DeadlinesContract.KEY_DUE_DATE, 1475660700000l);
         values.put(DeadlinesContract.KEY_LOC_LAT, 2532);
         values.put(DeadlinesContract.KEY_LOC_LONG, 65326);
         values.put(DeadlinesContract.KEY_HAND_IN, false);
@@ -146,7 +157,7 @@ public class ViewDeadlines extends AppCompatActivity  {
                     uri.toString(), Toast.LENGTH_LONG).show();
         }
         catch(Exception e){
-            Log.d("ContentProvider", "AddDeadline: Failed to add ");
+            Log.d("ContentProvider", "AddDeadline: Failed to add");
         }
     }
 
@@ -203,6 +214,16 @@ public class ViewDeadlines extends AppCompatActivity  {
 
         return allDeadlines;
 
+    }
+
+    private void ConfigureDeadlineReminders(){
+        AlarmManager alarmManager=(AlarmManager) this.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this.getApplicationContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 0, intent, 0);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),mDeadlineReminderIntervalMs,
+                pendingIntent);
+
+        mConfiguredReminders = true;
     }
 
 

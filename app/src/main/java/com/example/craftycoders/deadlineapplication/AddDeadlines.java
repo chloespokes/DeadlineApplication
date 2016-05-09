@@ -441,7 +441,6 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             Long due_date = date.getTime();
 
             ContentValues values = new ContentValues();
-            values.put(DeadlinesContract.KEY_ID, 2);
             values.put(DeadlinesContract.KEY_TITLE, title);
             values.put(DeadlinesContract.KEY_NOTES, notes);
             values.put(DeadlinesContract.KEY_DUE_DATE, due_date);
