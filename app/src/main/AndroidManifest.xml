@@ -18,7 +18,7 @@
         <activity android:name=".ViewDeadlines" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -54,6 +54,12 @@
 
         <provider android:name=".Data.DeadlineProvider"
             android:authorities="com.example.provider.CraftyCoders"/>
+
+        <receiver
+            android:name=".Models.AlarmReceiver"
+            android:exported="false">
+        </receiver>
+
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
