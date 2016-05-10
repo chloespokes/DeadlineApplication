@@ -27,6 +27,9 @@ import android.util.Log;
 import android.content.Intent;
 import android.app.DialogFragment;
 import android.view.Menu;
+import android.content.ContentResolver;
+import android.support.v4.app.NavUtils;
+import android.net.Uri;
 
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -50,7 +53,8 @@ public class AddDeadlines extends AppCompatActivity {
     private Integer editDay, editMonth, editYear, editHour, editMinute;
 
     //Global variables
-    double latitude, longitude;
+    double latitude = 52.762913;
+    double longitude = -1.237816;
 
     //get current date using Calendar
     Calendar calendar = Calendar.getInstance();
@@ -296,7 +300,7 @@ public class AddDeadlines extends AppCompatActivity {
         editTextTitle = (EditText) findViewById(R.id.title);
         editTextNotesText = (EditText) findViewById(R.id.notes);
 
-        if (isEmpty(editTextTitle) || isEmpty(editTextNotesText) || latitude == 0 || longitude == 0) {
+        if (isEmpty(editTextTitle) || latitude == 0 || longitude == 0) {
             formInvalid = true;
         }
 
@@ -331,7 +335,7 @@ public class AddDeadlines extends AppCompatActivity {
             values.put(DeadlinesContract.KEY_LOC_LONG, latitude);
             values.put(DeadlinesContract.KEY_HAND_IN, false);
 
-            /*ContentResolver contentResolver = getContentResolver();
+            ContentResolver contentResolver = getContentResolver();
 
             try{
                 Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
@@ -342,7 +346,7 @@ public class AddDeadlines extends AppCompatActivity {
             }
 
             //return to parent activity
-            NavUtils.navigateUpFromSameTask(this);*/
+            NavUtils.navigateUpFromSameTask(this);
 
             //take activity back to view deadline
             Intent intent = new Intent(AddDeadlines.this, ViewDeadlines.class );
