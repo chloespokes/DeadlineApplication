@@ -29,12 +29,14 @@ import android.app.DialogFragment;
 import android.view.Menu;
 import android.content.ContentResolver;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.FragmentActivity;
 import android.net.Uri;
 
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -42,7 +44,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * Created by Chloe on 27/04/16.
  */
-public class AddDeadlines extends AppCompatActivity {
+public class AddDeadlines extends FragmentActivity implements OnMapReadyCallback {
     private String TAG = "AddDeadlinesActivity";
 
     //Edit/resume variables
@@ -75,7 +77,7 @@ public class AddDeadlines extends AppCompatActivity {
     };
 
     float[][] predefined_locations_coords = new float[][] {
-            { 52.766406f, -1.228735f }, //schofieldd
+            { 52.766406f, -1.228735f }, //schofield
             { 52.766769f, -1.228994f }, //haslegrave
             { 52.765055f, -1.227206f }, //ed hertbert
             { 52.767195f, -1.227838f }, //business
@@ -92,6 +94,7 @@ public class AddDeadlines extends AppCompatActivity {
     Toolbar myToolbar;
     Button dueDate, dueTime;
     TextView selectedDate, selectedTime;
+    MapFragment mapFragment;
 
 
     @Override
@@ -107,7 +110,7 @@ public class AddDeadlines extends AppCompatActivity {
         editTextNotesText = (EditText) findViewById(R.id.notes);
         myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
 
-        setSupportActionBar(myToolbar);
+        //setSupportActionBar(myToolbar);
 
         setTitle("Add New Deadline");
 
@@ -149,23 +152,19 @@ public class AddDeadlines extends AppCompatActivity {
         editTextLocation.setAdapter(adapter);
 
         //setting up map
-        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
-                .getMap();
-        LatLng editMarker = (editDeadlines || addResume) ? new LatLng(editLatitude, editLongitude) : LOUGHBOROUGH;
-        String MarkerTitle = (editDeadlines || addResume) ? editTitle : "Loughborough University";
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
-        map.addMarker(new MarkerOptions().position(editMarker).title( MarkerTitle ));
+        if( editDeadlines ) {
+            editTitle = b.getString("title");
+            onLocationChange(map, editTitle, latitude, longitude);
+        }
 
-        // Move the camera instantly to Loughborough with a zoom of 10.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(editMarker, 10));
-
-        // Zoom in, animating the camera.
-        map.animateCamera(CameraUpdateFactory.zoomTo(13), 2000, null);
 
         //set date picker
         dueDate = (Button) findViewById(R.id.dueDate);
         dueDate.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View arg0) {
 
@@ -178,7 +177,6 @@ public class AddDeadlines extends AppCompatActivity {
         //set time picker
         dueTime = (Button) findViewById(R.id.dueTime);
         dueTime.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View arg0) {
 
@@ -230,6 +228,8 @@ public class AddDeadlines extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 //remove all markers
+                map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+                        .getMap();
                 map.clear();
                 longitude = 0;
                 latitude = 0;
@@ -252,9 +252,7 @@ public class AddDeadlines extends AppCompatActivity {
 
                     try {
                         Log.i("System.out", "Tried");
-                        Log.i("System.out", selectedLocation);
                         addresses = geocoder.getFromLocationName(selectedLocation, 1);
-                        Log.i("System.out", Integer.toString(addresses.size()));
                     } catch (IOException e) {
                         if("sdk".equals( Build.PRODUCT )) {
                             Log.i("System.out", "Geocoder doesn't work under emulation.");
@@ -272,11 +270,12 @@ public class AddDeadlines extends AppCompatActivity {
                             longitude = predefined_locations_coords[index][1];
                         }
 
-                        LatLng NEW_LAT = new LatLng(latitude, longitude);
-                        map.addMarker(new MarkerOptions().position(NEW_LAT).title(selectedLocation));
+                        //LatLng NEW_LAT = new LatLng(latitude, longitude);
+
+                        onLocationChange(map, selectedLocation, latitude, longitude);
 
                         // Move the camera instantly to new location with a zoom of 18.
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
+                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
                     } else {
                         Toast.makeText(AddDeadlines.this,
                                 "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
@@ -288,6 +287,21 @@ public class AddDeadlines extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title("Loughborough"));
+    }
+
+    public void onLocationChange(GoogleMap map, String location, double latitude, double longitude) {
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title(location));
+        LatLng NEW_LAT = new LatLng(latitude, longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
     }
 
     private boolean isEmpty(EditText etText) {
