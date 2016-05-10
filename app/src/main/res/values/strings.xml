@@ -9,4 +9,6 @@
     <color name="dark_grey">#757575</color>
     <color name="white">#ffffff</color>
     <string name="title_activity_view_deadline_info">ViewDeadlineInfo</string>
+    <string name="pickTime">Pick the Time</string>
+    <string name="pickDate">Pick the Date</string>
 </resources>
