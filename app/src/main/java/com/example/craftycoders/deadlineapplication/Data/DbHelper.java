@@ -97,16 +97,6 @@ public class DbHelper extends SQLiteOpenHelper{
     public long addDeadline(ContentValues deadlineValues){
         SQLiteDatabase db = this.getWritableDatabase();
 
-//        ContentValues values = new ContentValues();
-//        values.put(KEY_ID, deadline.getId());
-//        values.put(KEY_TITLE, deadline.getTitle());
-//        values.put(KEY_NOTES, deadline.getNotes());
-//        values.put(KEY_DUE_DATE, deadline.getDueDate());
-//        values.put(KEY_LOC_LAT, deadline.getLocationLat());
-//        values.put(KEY_LOC_LONG, deadline.getLocationLong());;
-//        values.put(KEY_HAND_IN, deadline.getIsHandedIn());
-//        values.put(KEY_CALENDAR_SYNC, deadline.getIsCalendarSync());
-
         //Inserting Row
         long rowID = db.insert(DeadlinesContract.DEADLINE_TABLE_NAME, null, deadlineValues);
         db.close();//Closes db connection
