@@ -68,11 +68,22 @@
                     android:paddingLeft="10dp"
                     android:background="@null"/>
 
+            </LinearLayout>
+
+            <LinearLayout
+            android:id="@+id/map_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:orientation="vertical"
+            android:background="@color/white">
+
                 <fragment
-                    android:id="@+id/map"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    class="com.google.android.gms.maps.MapFragment" />
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                class="com.google.android.gms.maps.MapFragment" />
 
             </LinearLayout>
 
@@ -90,10 +101,30 @@
                 android:paddingRight="10dp">
 
                 <TextView
-                    android:id="@+id/dueDate"
+                    android:id="@+id/dueDateTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/dateTime_layout" />
+                    android:background="@null"
+                    android:text="Due Date:"/>
+
+
+                <TextView
+                    android:id="@+id/dueDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/timeRemainingTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:background="@null"
+                    android:text="Time Remaining:"/>
+
+                <TextView
+                    android:id="@+id/timeRemaining"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
 

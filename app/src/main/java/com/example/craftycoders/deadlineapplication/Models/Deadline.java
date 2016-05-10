@@ -53,7 +53,7 @@ public class Deadline {
     public void setIsHandedIn(boolean isHandedIn){this.mIsHandedIn = isHandedIn;}
 
     public boolean getCalendarSync(){return this.mCalendarSync;};
-    public void setCalendarSync(boolean calendarSync){this.mIsHandedIn = calendarSync;}
+    public void setCalendarSync(boolean calendarSync){this.mCalendarSync = calendarSync;}
 
 
 }
