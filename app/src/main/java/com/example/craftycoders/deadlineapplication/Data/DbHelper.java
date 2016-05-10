@@ -27,27 +27,17 @@ public class DbHelper extends SQLiteOpenHelper{
     // Deadline table name
     private static final String DEADLINE_TABLE_NAME = "deadlines";
 
-    // Deadlines Table Columns names
-    private static final String KEY_ID = "_ID";
-    private static final String KEY_TITLE = "title";
-    private static final String KEY_NOTES = "notes";
-    private static final String KEY_DUE_DATE = "due_date";
-    private static final String KEY_LOC_LAT = "location_lat";
-    private static final String KEY_LOC_LONG = "location_long";
-    private static final String KEY_HAND_IN = "is_handed_in";
-    private static final String KEY_CALENDAR_SYNC = "calendar_sync";
-
     //CREATE TABLE deadline (_ID TEXT, title TEXT, notes TEXT, etc.);
     private static final String DEADLINE_TABLE_CREATE =
             "CREATE TABLE " + DEADLINE_TABLE_NAME + "("
-                    + KEY_ID + " INTEGER PRIMARY KEY ASC,"
-                    + KEY_TITLE + " TEXT,"
-                    + KEY_NOTES + " TEXT,"
-                    + KEY_DUE_DATE + " LONG,"
-                    + KEY_LOC_LAT + " FLOAT,"
-                    + KEY_LOC_LONG + " FLOAT,"
-                    + KEY_HAND_IN + " BOOLEAN"
-                    + KEY_CALENDAR_SYNC + " BOOLEAN"
+                    + DeadlinesContract.KEY_ID + " INTEGER PRIMARY KEY ASC,"
+                    + DeadlinesContract.KEY_TITLE + " TEXT,"
+                    + DeadlinesContract.KEY_NOTES + " TEXT,"
+                    + DeadlinesContract.KEY_DUE_DATE + " LONG,"
+                    + DeadlinesContract.KEY_LOC_LAT + " FLOAT,"
+                    + DeadlinesContract.KEY_LOC_LONG + " FLOAT,"
+                    + DeadlinesContract.KEY_HAND_IN + " BOOLEAN,"
+                    + DeadlinesContract.KEY_CALENDAR_SYNC + " BOOLEAN"
                     +")";
 
     private Context mCxt;

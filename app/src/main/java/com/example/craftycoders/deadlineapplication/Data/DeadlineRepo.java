@@ -76,6 +76,66 @@ public class DeadlineRepo {
 
     }
 
+    public static Deadline GetDeadline(ContentResolver contentResolver, Uri uri){
+        // A "projection" defines the columns that will be returned for each row
+        String[] mProjection =
+                {
+                        DeadlinesContract.KEY_ID,
+                        DeadlinesContract.KEY_TITLE,
+                        DeadlinesContract.KEY_NOTES,
+                        DeadlinesContract.KEY_DUE_DATE,
+                        DeadlinesContract.KEY_LOC_LAT,
+                        DeadlinesContract.KEY_LOC_LONG,
+                        DeadlinesContract.KEY_HAND_IN
+                };
+        Deadline deadline = new Deadline();
+        // Defines a string to contain the selection clause
+        String mSelectionClause = null;
+
+        // Initializes an array to contain selection arguments
+        String[] mSelectionArgs = {""};
+
+        Cursor mCursor = contentResolver.query(
+                uri,
+                mProjection,
+                mSelectionClause,
+                mSelectionArgs,
+                null);
+
+        // Some providers return null if an error occurs, others throw an exception
+        if (null == mCursor) {
+            Log.d(TAG, "GetDeadline: provider returned an error");
+            // If the Cursor is empty, the provider found no matches
+        } else if (mCursor.getCount() < 1) {
+            Log.d(TAG, "GetDeadline: provider returned no results");
+        } else {
+                deadline.setId(mCursor.getInt(mCursor.getColumnIndex(DeadlinesContract.KEY_ID)));
+                deadline.setTitle(mCursor.getString(mCursor.getColumnIndex(DeadlinesContract.KEY_TITLE)));
+                deadline.setNotes(mCursor.getString(mCursor.getColumnIndex(DeadlinesContract.KEY_NOTES)));
+                deadline.setDueDate(mCursor.getLong(mCursor.getColumnIndex(DeadlinesContract.KEY_DUE_DATE)));
+                deadline.setLocationLat(mCursor.getFloat(mCursor.getColumnIndex(DeadlinesContract.KEY_LOC_LAT)));
+                deadline.setLocationLong(mCursor.getFloat(mCursor.getColumnIndex(DeadlinesContract.KEY_LOC_LONG)));
+                deadline.setIsHandedIn(mCursor.getInt(mCursor.getColumnIndex(DeadlinesContract.KEY_HAND_IN)) > 0);
+        }
+        return deadline;
+    }
+
+    public static void DeleteDeadline(ContentResolver contentResolver, Uri uri){
+        // Defines a string to contain the selection clause
+        String mSelectionClause = DeadlinesContract.KEY_ID + "=?";
+
+        // Initializes an array to contain selection arguments
+        String[] mSelectionArgs = {uri.getPathSegments().get(1)};
+
+        try{
+            int numberOfDeadlinesDeleted = contentResolver.delete(DeadlinesContract.CONTENT_URI, mSelectionClause, mSelectionArgs);
+            Log.d("ContentProvider", "DeleteDeadline: Number of deadlines deleted " + numberOfDeadlinesDeleted);
+        }
+        catch(Exception e){
+            Log.d("ContentProvider", "DeleteDeadline: Failed to delete" + e.getMessage());
+        }
+    }
+
     public static void AddDeadline(ContentResolver contentResolver){
         ContentValues values = new ContentValues();
         values.put(DeadlinesContract.KEY_ID, 10);

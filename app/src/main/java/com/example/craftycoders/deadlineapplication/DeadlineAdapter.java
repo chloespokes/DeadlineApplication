@@ -6,6 +6,7 @@ package com.example.craftycoders.deadlineapplication;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,7 @@ public class DeadlineAdapter extends ArrayAdapter<Deadline> {
      * Returns the view for a specific item on the list
      */
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, final View convertView, ViewGroup parent) {
         View row = convertView;
 
         final Deadline currentItem = getItem(position);
@@ -51,6 +52,17 @@ public class DeadlineAdapter extends ArrayAdapter<Deadline> {
         final TextView timeRemaining = (TextView) row.findViewById(R.id.deadlineTimeRemaining);
         title.setText(currentItem.getTitle());
         timeRemaining.setText(CreateTimeRemainingString(currentItem.getDueDate()));
+
+        row.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent resultIntent = new Intent(mContext, ViewDeadlineInfo.class);
+                resultIntent.putExtra("deadlineId", currentItem.getId());
+                mContext.startActivity(resultIntent);
+            }
+        });
 
         return row;
     }
