@@ -1,16 +1,31 @@
 package com.example.craftycoders.deadlineapplication;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.craftycoders.deadlineapplication.Data.DeadlineRepo;
+import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +36,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +46,9 @@ import java.util.Map;
 public class ViewDeadlineInfo extends AppCompatActivity {
 
     private GoogleMap map;
+    private GestureDetectorCompat mDetector;
+    View.OnTouchListener gestureListener;
+    private int mDeadlineId;
 
     private static final Map<String, LatLng> predefined_locations = new HashMap<String, LatLng>();
     static
@@ -43,15 +62,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         predefined_locations.put("Wavy Top, Loughborough University", new LatLng( 52.765351, -1.228155 ));
     }
 
-    private static final Deadline deadline = new Deadline(
-            0,
-            "Mobile App",
-            "I hate it",
-            1462568485978l,
-            52.6274318f,
-            -1.68335969f,
-            false,
-            false);
+    private Deadline deadline = new Deadline();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +73,23 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        //  Intent intent = getIntent();
-        //Uri data = intent.getData();
+        Intent intent = getIntent();
+        mDeadlineId = intent.getIntExtra("deadlineId", 0);
 
         setTitle("View Deadline");
+
+        Uri uri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, mDeadlineId);
+
+        deadline = DeadlineRepo.GetDeadline(ViewDeadlineInfo.this.getContentResolver(), uri);
+//        deadline = new Deadline(
+//                0,
+//                "MAD",
+//                "Woop",
+//                1463076000000L,
+//                52.6274318F,
+//                -1.6833596999999827F,
+//                false,
+//                false);
 
         final LatLng deadlineLatLng = new LatLng(deadline.getLocationLat(), deadline.getLocationLong());
 
@@ -80,7 +104,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         {
             if(distance(deadlineLatLng.latitude, deadlineLatLng.longitude, entry.getValue().latitude, entry.getValue().longitude) < 0.0005)
             {
-                deadlineLocation.setText("Location: " + entry.getKey());
+                deadlineLocation.setText(entry.getKey());
                 predefinedHandInLocation = true;
                 break;
             }
@@ -89,7 +113,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         if(!predefinedHandInLocation)
         {
             Geocoder geocoder;
-            List<Address> addresses = null;
+            List<Address> addresses = new ArrayList<Address>();
             geocoder = new Geocoder(this, Locale.getDefault());
 
             try {
@@ -120,12 +144,102 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
         final TextView deadlineEndDate = (TextView) findViewById(R.id.dueDate);
         Date dueDate = new Date(deadline.getDueDate());
-        deadlineEndDate.setText("Due Date: " + dateFormat.format(dueDate));
+        deadlineEndDate.setText(dateFormat.format(dueDate));
+
+       final TextView deadlineTimeRemaining = (TextView) findViewById(R.id.timeRemaining);
+       deadlineTimeRemaining.setText(Utils.ConvertDueDateToTimeRemaining(deadline.getDueDate()));
 
         final TextView deadlineExtraNotes = (TextView) findViewById(R.id.notes);
         deadlineExtraNotes.setText(deadline.getNotes());
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureDetector());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return mDetector.onTouchEvent(event);
+            }
+        };
+
+        ViewGroup scrollView = (ViewGroup) findViewById(R.id.scrollView2);
+        recursiveLoopChildren(scrollView);
     }
 
+    private void recursiveLoopChildren(ViewGroup parent) {
+        for (int childIndex = 0; childIndex < parent.getChildCount(); childIndex++){
+            final View child = parent.getChildAt(childIndex);
+            if (child instanceof ViewGroup)
+            {
+                recursiveLoopChildren((ViewGroup)child);
+            }
+            else {
+                if(child !=null)
+                {
+                    if(child.getId() != R.id.map){
+                        child.setOnTouchListener(gestureListener);
+                    }
+                }
+            }
+
+        }
+    }
+
+    class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > 250)
+                    return false;
+                // right to left swipe
+                if (e1.getX() - e2.getX() > 120 && Math.abs(velocityX) > 200) {
+                    editDeadline();
+                } else if (e2.getX() - e1.getX() > 120 && Math.abs(velocityX) > 200) {
+                    deleteDeadline();
+                }
+            } catch (Exception e) {
+                Log.d("GestureDetector", e.getMessage());
+            }
+            return false;
+        }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+        }
+    };
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        super.dispatchTouchEvent(ev);
+        return mDetector.onTouchEvent(ev);
+    }
+
+
+    public void editDeadline() {
+        Intent resultIntent = new Intent(ViewDeadlineInfo.this.getApplicationContext(), AddDeadlines.class);
+        resultIntent.putExtra("deadlineId", mDeadlineId);
+        startActivity(resultIntent);
+    }
+
+    // http://www.wolinlabs.com/blog/yes.no.message.box.html
+    public void deleteDeadline() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Delete this Deadline");
+        builder.setMessage("Are you sure?");
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Uri uri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, mDeadlineId);
+                DeadlineRepo.DeleteDeadline(ViewDeadlineInfo.this.getContentResolver(), uri);
+
+                Intent resultIntent = new Intent(ViewDeadlineInfo.this.getApplicationContext(), ViewDeadlines.class);
+                startActivity(resultIntent);
+            }
+        });
+
+        builder.setNegativeButton("No", null);
+        builder.show();
+    }
     public void onBackPressed() {
         //Go back to ViewDeadlines when back clicked
         Intent intent = new Intent(ViewDeadlineInfo.this, ViewDeadlines.class );
@@ -133,29 +247,20 @@ public class ViewDeadlineInfo extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_menu, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId())
         {
             case R.id.action_settings:
                 return true;
             case R.id.action_edit:
-                Intent yourIntent = new Intent(ViewDeadlineInfo.this, AddDeadlines.class);
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("edit", true);
-                bundle.putString("title", deadline.getTitle());
-                bundle.putFloat("latitude", deadline.getLocationLat());
-                bundle.putFloat("longitude", deadline.getLocationLong());
-                bundle.putLong("date_time", deadline.getDueDate());
-                bundle.putString("notes", deadline.getNotes());
+                editDeadline();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -164,8 +269,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
     // This will need to be cited found on StackOverflow
     // stackoverflow.com/questions/18170131/comparing-two-locations-using-their-longitude-and-latitude
-    private double distance(double deadlineLat, double deadlineLong, double predefinedLat, double predefinedLong)
-    {
+    private double distance(double deadlineLat, double deadlineLong, double predefinedLat, double predefinedLong) {
         double earthRadius = 3958.75;
 
         double dLat = Math.toRadians(predefinedLat - deadlineLat);
