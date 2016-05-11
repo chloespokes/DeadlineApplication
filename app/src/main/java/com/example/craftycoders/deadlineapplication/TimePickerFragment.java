@@ -38,13 +38,17 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         } else {
             time_period = "PM";
         }
+
+        String selectedHourFormatted = String.format("%02d", hourOfDay);
+        String selectedMinuteFormatted = String.format("%02d", minute);
+
         TextView selectedTime = (TextView) getActivity().findViewById(R.id.selectedTime);
-        selectedTime.setText(String.valueOf(hourOfDay) + ":" + String.valueOf(minute) + time_period );
+        selectedTime.setText(selectedHourFormatted + ":" + selectedMinuteFormatted + time_period );
 
         EditText editHours = (EditText) getActivity().findViewById(R.id.time_hours);
         EditText editMinutes = (EditText) getActivity().findViewById(R.id.time_minutes);
 
-        editHours.setText(String.valueOf(hourOfDay));
-        editMinutes.setText(String.valueOf(minute));
+        editHours.setText(selectedHourFormatted);
+        editMinutes.setText(selectedMinuteFormatted);
     }
 }
