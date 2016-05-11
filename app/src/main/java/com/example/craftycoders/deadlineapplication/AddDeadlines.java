@@ -93,7 +93,6 @@ public class AddDeadlines extends FragmentActivity implements OnMapReadyCallback
             { 52.765351f, -1.228155f } //wavy top
     };
 
-    static final LatLng LOUGHBOROUGH = new LatLng(52.762913, -1.237816);
     private GoogleMap map;
 
     EditText editTextTitle, editTextHours, editTextMinutes, editTextDay, editTextMonth, editTextYear, editTextNotesText;
