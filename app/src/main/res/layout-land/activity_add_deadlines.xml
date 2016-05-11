@@ -88,21 +88,21 @@
                         android:orientation="horizontal"
                         android:weightSum="1.0">
 
-                        <TextView
-                            android:id="@+id/textViewDate"
+                        <Button
+                            android:id="@+id/dueDate"
                             android:layout_height="wrap_content"
-                            android:text="Due Date"
                             android:layout_weight=".5"
                             android:layout_width="0dip"
-                            android:textSize="12sp"  />
+                            android:textSize="12sp"
+                            android:text="@string/pickDate" />
 
-                        <TextView
-                            android:id="@+id/textViewTime"
+                        <Button
+                            android:id="@+id/dueTime"
                             android:layout_height="wrap_content"
-                            android:text="Due Time"
                             android:layout_weight=".5"
                             android:layout_width="0dip"
-                            android:textSize="12sp" />
+                            android:textSize="12sp"
+                            android:text="@string/pickTime" />
 
                     </LinearLayout>
 
@@ -120,6 +120,13 @@
                             android:layout_weight=".5"
                             android:layout_width="0dip" >
 
+                            <TextView
+                                android:id="@+id/selectedDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:background="@null" />
+
                             <EditText
                                 android:id="@+id/day"
                                 android:layout_width="wrap_content"
@@ -127,13 +134,15 @@
                                 android:maxLength="2"
                                 android:inputType="number"
                                 android:gravity="left"
+                                android:visibility="invisible"
                                 android:background="@null" />
 
-                            <Spinner
+                            <EditText
                                 android:id="@+id/month"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:dropDownWidth="wrap_content"
+                                android:visibility="invisible"
                                 android:gravity="left"
                                 android:layout_weight="1" />
 
@@ -141,6 +150,7 @@
                                 android:id="@+id/year"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:visibility="invisible"
                                 android:maxLength="4"
                                 android:inputType="number"
                                 android:background="@null"
@@ -155,24 +165,24 @@
                             android:layout_weight=".5"
                             android:layout_width="0dip">
 
-                            <Spinner
+                            <TextView
+                            android:id="@+id/selectedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:background="@null" />
+
+                            <EditText
                                 android:id="@+id/time_hours"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:dropDownWidth="wrap_content"
-                                android:gravity="right"
-                                android:layout_gravity="right"
-                                android:spinnerMode="dropdown" />
+                                android:visibility="invisible" />
 
-                            <Spinner
+                            <EditText
                                 android:id="@+id/time_minutes"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:dropDownWidth="wrap_content"
-                                android:gravity="right"
-                                android:layout_gravity="right"
-                                android:paddingBottom="15dp"
-                                android:spinnerMode="dropdown" />
+                                android:visibility="invisible" />
 
                         </LinearLayout>
 

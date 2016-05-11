@@ -2,17 +2,13 @@ package com.example.craftycoders.deadlineapplication;
 
 import java.util.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
-import org.json.JSONObject;
-
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.support.v4.app.NavUtils;
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.net.Uri;
+import android.database.Cursor;
+import android.os.AsyncTask;
+import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Build;
@@ -22,30 +18,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.graphics.Color;
 import android.widget.Button;
+import android.widget.Switch;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 import android.content.Intent;
-import android.view.KeyEvent;
-
-import android.app.Activity;
-import android.os.Bundle;
+import android.app.DialogFragment;
 import android.view.Menu;
+import android.content.ContentResolver;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.FragmentActivity;
+import android.net.Uri;
 
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
+import com.example.craftycoders.deadlineapplication.Models.Deadline;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -53,7 +49,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * Created by Chloe on 27/04/16.
  */
-public class AddDeadlines extends AppCompatActivity implements OnItemSelectedListener {
+public class AddDeadlines extends FragmentActivity implements OnMapReadyCallback {
     private String TAG = "AddDeadlinesActivity";
 
     //Edit/resume variables
@@ -62,11 +58,12 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     private Long editDateTime;
     private Float editLatitude, editLongitude;
     private Integer editDay, editMonth, editYear, editHour, editMinute;
+    private Boolean editCalendarSync;
 
     //Global variables
-    double latitude, longitude;
-    Spinner spinner_month, spinner_hour, spinner_minutes;
-    String selectedSpinnerMonth, selectedSpinnerHour, selectedSpinnerMinutes;
+    double latitude = 52.762913;
+    double longitude = -1.237816;
+    boolean setCalendarSync = false; //as default
 
     //get current date using Calendar
     Calendar calendar = Calendar.getInstance();
@@ -75,27 +72,6 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     int current_year = calendar.get(Calendar.YEAR);
     int current_hour = calendar.get(Calendar.HOUR_OF_DAY);
     int current_minute = calendar.get(Calendar.MINUTE);
-
-    int selectedDay, selectedMonth, selectedYear;
-
-    private String[] month = { "January", "February", "March", "April",
-            "May", "June", "July", "August", "September", "October", "November",
-            "December" };
-
-    private String[] time_hours = { "00", "01", "02", "03",
-            "04", "05", "06", "07", "08", "09", "10",
-            "11", "12", "13", "14", "15", "16", "17",
-            "18", "19", "20", "21", "22", "23" };
-
-    private String[] time_minutes = { "00", "01", "02", "03",
-            "04", "05", "06", "07", "08", "09", "10",
-            "11", "12", "13", "14", "15", "16", "17",
-            "18", "19", "20", "21", "22", "23", "24",
-            "25", "26", "27", "28", "29", "30", "31",
-            "32", "33", "34", "35", "36", "37", "38",
-            "39", "40", "41", "42", "43", "44", "45",
-            "46", "47", "48", "49", "50", "51", "52",
-            "53", "54", "55", "56", "57", "58", "59" };
 
     private static final String[] predefined_locations = new String[] {
             "Schofield, Loughborough University",
@@ -108,7 +84,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     };
 
     float[][] predefined_locations_coords = new float[][] {
-            { 52.766406f, -1.228735f }, //schofieldd
+            { 52.766406f, -1.228735f }, //schofield
             { 52.766769f, -1.228994f }, //haslegrave
             { 52.765055f, -1.227206f }, //ed hertbert
             { 52.767195f, -1.227838f }, //business
@@ -120,9 +96,13 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
     static final LatLng LOUGHBOROUGH = new LatLng(52.762913, -1.237816);
     private GoogleMap map;
 
-    EditText editTextTitle, editTextDay, editTextYear, editTextNotesText;
+    EditText editTextTitle, editTextHours, editTextMinutes, editTextDay, editTextMonth, editTextYear, editTextNotesText;
     AutoCompleteTextView editTextLocation;
     Toolbar myToolbar;
+    Button dueDate, dueTime;
+    TextView selectedDate, selectedTime;
+    MapFragment mapFragment;
+    Switch calendarSync;
 
 
     @Override
@@ -132,14 +112,19 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_deadlines);
 
-        editTextTitle = (EditText) findViewById(R.id.title);
         editTextLocation = (AutoCompleteTextView) findViewById(R.id.location);
         editTextDay = (EditText) findViewById(R.id.day);
+        editTextMonth = (EditText) findViewById(R.id.month);
         editTextYear = (EditText) findViewById(R.id.year);
+        editTextHours = (EditText) findViewById(R.id.time_hours);
+        editTextMinutes = (EditText) findViewById(R.id.time_minutes);
+        selectedDate = (TextView) findViewById(R.id.selectedDate);
+        selectedTime = (TextView) findViewById(R.id.selectedTime);
         editTextNotesText = (EditText) findViewById(R.id.notes);
         myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        calendarSync = (Switch) findViewById(R.id.calendar_sync);
 
-        setSupportActionBar(myToolbar);
+        //setSupportActionBar(myToolbar);
 
         setTitle("Add New Deadline");
 
@@ -160,6 +145,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             editLongitude = b.getFloat("longitude");
             editDateTime = b.getLong("date_time");
             editNotes = b.getString("notes");
+            editCalendarSync = b.getBoolean("calendar_sync");
 
             setTitle("Edit " + editTitle + " Deadline");
             //setContentView(R.layout.activity_edit_deadlines);
@@ -171,6 +157,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 editLongitude = b.getFloat("longitude");
                 editDateTime = b.getLong("date_time");
                 editNotes = b.getString("notes");
+                editCalendarSync = b.getBoolean("calendar_sync");
             }
             setTitle("Add New Deadline");
             //setContentView(R.layout.activity_add_deadlines);
@@ -181,39 +168,40 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         editTextLocation.setAdapter(adapter);
 
         //setting up map
-        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
-                .getMap();
-        LatLng editMarker = (editDeadlines || addResume) ? new LatLng(editLatitude, editLongitude) : LOUGHBOROUGH;
-        String MarkerTitle = (editDeadlines || addResume) ? editTitle : "Loughborough University";
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
-        map.addMarker(new MarkerOptions().position(editMarker).title( MarkerTitle ));
+        if( editDeadlines ) {
+            editTitle = b.getString("title");
+            onLocationChange(map, editTitle, latitude, longitude);
+        }
 
-        // Move the camera instantly to Loughborough with a zoom of 10.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(editMarker, 10));
 
-        // Zoom in, animating the camera.
-        map.animateCamera(CameraUpdateFactory.zoomTo(13), 2000, null);
+        //set date picker
+        dueDate = (Button) findViewById(R.id.dueDate);
+        dueDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
 
-        //setting spinner for months
-        spinner_month = (Spinner) findViewById(R.id.month);
-        final ArrayAdapter<String> adapter_state_month = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, month);
-        adapter_state_month.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner_month.setAdapter(adapter_state_month);
-        spinner_month.setOnItemSelectedListener(this);
+                DialogFragment newFragment = new SelectDateFragment();
+                newFragment.show(getFragmentManager(), "DatePicker");
 
-        //setting spinner for time (hours)
-        spinner_hour = (Spinner) findViewById(R.id.time_hours);
-        ArrayAdapter<String> adapter_state_hour = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, time_hours);
-        adapter_state_hour.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner_hour.setAdapter(adapter_state_hour);
-        spinner_hour.setOnItemSelectedListener(this);
+            }
+        });
 
-        //setting spinner for time (minutes)
-        spinner_minutes = (Spinner) findViewById(R.id.time_minutes);
-        ArrayAdapter<String> adapter_state_minutes = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, time_minutes);
-        adapter_state_minutes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner_minutes.setAdapter(adapter_state_minutes);
-        spinner_minutes.setOnItemSelectedListener(this);
+        //set time picker
+        dueTime = (Button) findViewById(R.id.dueTime);
+        dueTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+
+                DialogFragment newFragment = new TimePickerFragment();
+                newFragment.show(getFragmentManager(),"TimePicker");
+
+            }
+        });
+
 
         //set current day, month, year & time
         //if editDeadline, get date in variables
@@ -229,22 +217,27 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             editHour = cal.get(Calendar.HOUR_OF_DAY);
             editMinute = cal.get(Calendar.MINUTE);
         }
-        String string_current_day = ( editDeadlines || addResume ) ? Integer.toString( editDay ) : Integer.toString( current_day );
-        editTextDay.setText(string_current_day, TextView.BufferType.EDITABLE);
+        current_day = ( editDeadlines || addResume ) ? editDay : current_day;
+        current_month = ( editDeadlines || addResume ) ? editMonth : (current_month+1);
+        current_year = ( editDeadlines || addResume ) ? editYear : current_year;
+        current_hour = ( editDeadlines || addResume ) ? editHour : current_hour;
+        current_minute = ( editDeadlines || addResume ) ? editMinute : current_minute;
+        
+        editTextDay.setText(String.valueOf(current_day));
+        editTextMonth.setText(String.valueOf(current_month));
+        editTextYear.setText(String.valueOf(current_year));
+        editTextHours.setText(String.valueOf(current_hour));
+        editTextMinutes.setText(String.valueOf(current_minute));
 
-
-        int parsing_month = ( editDeadlines || addResume ) ? editMonth : current_month;
-        int parsing_hour = ( editDeadlines || addResume ) ? editHour : current_hour;
-        int parsing_minute = ( editDeadlines || addResume ) ? editMinute : current_minute;
-        spinner_month.setSelection( parsing_month );
-        spinner_hour.setSelection( parsing_hour );
-        spinner_minutes.setSelection(parsing_minute);
-
-        String string_current_year = ( editDeadlines || addResume ) ? Integer.toString( editYear ) : Integer.toString( current_year );
-        if ( string_current_year.length() == 0) {
-            string_current_year = "";
+        String time_period;
+        if (current_hour < 12) {
+            time_period = "AM";
+        } else {
+            time_period = "PM";
         }
-        editTextYear.setText(string_current_year, TextView.BufferType.EDITABLE);
+
+        selectedDate.setText( current_day + "/" + current_month + "/" + current_year );
+        selectedTime.setText( current_hour + ":" + current_minute + time_period );
 
         if ( editDeadlines || addResume ) {
             //if editing deadlines, add extra notes parsed
@@ -257,6 +250,8 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 //remove all markers
+                map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+                        .getMap();
                 map.clear();
                 longitude = 0;
                 latitude = 0;
@@ -279,9 +274,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
 
                     try {
                         Log.i("System.out", "Tried");
-                        Log.i("System.out", selectedLocation);
                         addresses = geocoder.getFromLocationName(selectedLocation, 1);
-                        Log.i("System.out", Integer.toString(addresses.size()));
                     } catch (IOException e) {
                         if("sdk".equals( Build.PRODUCT )) {
                             Log.i("System.out", "Geocoder doesn't work under emulation.");
@@ -299,11 +292,12 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                             longitude = predefined_locations_coords[index][1];
                         }
 
-                        LatLng NEW_LAT = new LatLng(latitude, longitude);
-                        map.addMarker(new MarkerOptions().position(NEW_LAT).title(selectedLocation));
+                        //LatLng NEW_LAT = new LatLng(latitude, longitude);
+
+                        onLocationChange(map, selectedLocation, latitude, longitude);
 
                         // Move the camera instantly to new location with a zoom of 18.
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
+                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
                     } else {
                         Toast.makeText(AddDeadlines.this,
                                 "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
@@ -314,93 +308,37 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             }
         });
 
-        //day validation
-        editTextDay.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                //once user has finished editing location, search for lat and long
-                if (!hasFocus) {
-                    selectedDay = Integer.valueOf(editTextDay.getText().toString());
-                    selectedMonth = spinner_month.getSelectedItemPosition();
-                    selectedYear = Integer.valueOf(editTextYear.getText().toString());
-
-                    String formatted_day = String.format("%02d", selectedDay);
-                    String formatted_month = String.format("%02d", selectedMonth);
-
-                    if (!isValidDate(selectedYear + "-" + formatted_month + "-" + formatted_day)) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a valid date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
+        calendarSync = (Switch) findViewById(R.id.calendar_sync);
+        if (calendarSync != null) {
+            calendarSync.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (calendarSync.isChecked()) {
+                        setCalendarSync = true;
                     } else {
-                        turn_black_date();
-                    }
-
-                    if (selectedYear < current_year) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a future date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
-                    } else if (selectedMonth < current_month && selectedYear <= current_year) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a future date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
-                    } else if (selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a future date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
+                        setCalendarSync = false;
                     }
                 }
-            }
-        });
+            });
+        }
 
-        //year validation
-        editTextYear.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                //once user has finished editing location, search for lat and long
-                if (!hasFocus) {
-                    selectedDay = Integer.valueOf(editTextDay.getText().toString());
-                    selectedMonth = spinner_month.getSelectedItemPosition();
-                    selectedYear = Integer.valueOf(editTextYear.getText().toString());
+    }
 
-                    if (selectedYear < 100) {
-                        selectedYear = Integer.valueOf("20" + String.valueOf(selectedYear));
-                    } else if (selectedYear < 1000) {
-                        selectedYear = Integer.valueOf("2" + String.valueOf(selectedYear));
-                    }
+    @Override
+    public void onMapReady(GoogleMap map) {
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title("Loughborough"));
+        LatLng NEW_LAT = new LatLng(latitude, longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 13));
+    }
 
-                    editTextYear.setText(Integer.toString(selectedYear));
-
-                    String formatted_day = String.format("%02d", selectedDay);
-                    String formatted_month = String.format("%02d", selectedMonth);
-
-                    Log.i("date", selectedYear + "-" + formatted_month + "-" + formatted_day);
-                    Log.i("date-valid", Boolean.toString(isValidDate(selectedYear + "-" + formatted_month + "-" + formatted_day)));
-
-                    if (!isValidDate(selectedYear + "-" + formatted_month + "-" + formatted_day)) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a valid date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
-                    } else {
-                        turn_black_date();
-                    }
-
-                    if (selectedYear < current_year) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a future date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
-                    } else if (selectedMonth < current_month && selectedYear <= current_year) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a future date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
-                    } else if (selectedDay < current_day && selectedMonth <= current_month && selectedYear <= current_year) {
-                        Toast.makeText(AddDeadlines.this,
-                                "Please enter a future date", Toast.LENGTH_SHORT).show();
-                        turn_red_date();
-                    }
-                }
-            }
-        });
-
+    public void onLocationChange(GoogleMap map, String location, double latitude, double longitude) {
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title(location));
+        LatLng NEW_LAT = new LatLng(latitude, longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
     }
 
     private boolean isEmpty(EditText etText) {
@@ -411,16 +349,18 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         formInvalid = false;
 
         editTextTitle = (EditText) findViewById(R.id.title);
+        editTextDay = (EditText) findViewById(R.id.day);
+        editTextMonth = (EditText) findViewById(R.id.month);
+        editTextYear = (EditText) findViewById(R.id.year);
+        editTextHours = (EditText) findViewById(R.id.time_hours);
+        editTextMinutes = (EditText) findViewById(R.id.time_minutes);
         editTextNotesText = (EditText) findViewById(R.id.notes);
 
-        if (isEmpty(editTextTitle) || isEmpty(editTextNotesText) || latitude == 0 || longitude == 0) {
+        if (isEmpty(editTextTitle) || latitude == 0 || longitude == 0) {
             formInvalid = true;
         }
 
-        if (dateInvalid) {
-            Toast.makeText(AddDeadlines.this,
-                    "Please validate all fields in red", Toast.LENGTH_LONG).show();
-        } else if (formInvalid) {
+        if (formInvalid) {
             Toast.makeText(AddDeadlines.this,
                     "Please enter all fields", Toast.LENGTH_LONG).show();
         } else {
@@ -429,14 +369,17 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
 
             //convert date/time to seconds
             String day = editTextDay.getText().toString();
+            String month = editTextMonth.getText().toString();
             String year = editTextYear.getText().toString();
+            String hour = editTextHours.getText().toString();
+            String minutes = editTextMinutes.getText().toString();
+            String location = editTextLocation.getText().toString();
 
-            Integer i = Integer.parseInt(selectedSpinnerMonth);
-            i++;    //increase so months start from 1-12
+            Integer i = Integer.parseInt(month);
             String selectedMonthFormatted = String.format("%02d", i);
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss", Locale.UK);
-            String dateInString = day + "-" + selectedMonthFormatted + "-" + year + " " + selectedSpinnerHour + ":" + selectedSpinnerMinutes + ":00";
+            String dateInString = day + "-" + selectedMonthFormatted + "-" + year + " " + hour + ":" + minutes + ":00";
             Date date = sdf.parse(dateInString);
             Long due_date = date.getTime();
 
@@ -448,7 +391,7 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
             values.put(DeadlinesContract.KEY_LOC_LONG, latitude);
             values.put(DeadlinesContract.KEY_HAND_IN, false);
 
-            /*ContentResolver contentResolver = getContentResolver();
+            ContentResolver contentResolver = getContentResolver();
 
             try{
                 Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
@@ -458,8 +401,27 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
                 Log.d("ContentProvider", "AddDeadline: Failed to add" + e.getMessage());
             }
 
+            if (setCalendarSync) {
+                //sync to calendar, needs to be executed in sync button
+                CalendarSyncTask task = new CalendarSyncTask();
+                ArrayList<String> passing = new ArrayList<String>();
+                passing.add(title);  //title
+                passing.add(notes);  //notes
+                passing.add(Long.toString(due_date)); //due_date
+                passing.add(Long.toString(due_date + 3600000)); //due_end_dare
+                passing.add(location);  //location
+
+                try{
+                    task.execute(passing);
+                    Log.d(TAG, "Successfully synced deadlines to calendar");
+                }
+                catch(Exception e){
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+
             //return to parent activity
-            NavUtils.navigateUpFromSameTask(this);*/
+            NavUtils.navigateUpFromSameTask(this);
 
             //take activity back to view deadline
             Intent intent = new Intent(AddDeadlines.this, ViewDeadlines.class );
@@ -520,70 +482,30 @@ public class AddDeadlines extends AppCompatActivity implements OnItemSelectedLis
         }
     }
 
-    public void turn_red_date() {
-        dateInvalid = true;
-        Log.i("update", "turn red");
-        editTextDay = (EditText) findViewById(R.id.day);
-        editTextYear = (EditText) findViewById(R.id.year);
+    private class CalendarSyncTask extends AsyncTask<ArrayList<String>, Void, ArrayList<String>> {
+        @Override
+        protected ArrayList<String> doInBackground(ArrayList<String>... passing) {
+            ArrayList<String> passed = passing[0]; //get passed arraylist
 
-        editTextDay.setTextColor(Color.parseColor("#ff0000"));
-        TextView selectedText = (TextView) spinner_month.getChildAt(0);
-        if (selectedText != null) {
-            selectedText.setTextColor(Color.RED);
+            String title = passed.get(0);
+            String notes = passed.get(1);
+            String due_date = passed.get(2);
+            String end_date = passed.get(3);
+            String location = passed.get(4);
+
+            //if not already synced to calendar, run sync
+            Intent intent = new Intent(Intent.ACTION_INSERT)
+                            .setData(CalendarContract.Events.CONTENT_URI)
+                            .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, due_date)
+                            .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, end_date)
+                            .putExtra(CalendarContract.Events.TITLE, title)
+                            .putExtra(CalendarContract.Events.DESCRIPTION, notes)
+                            .putExtra(CalendarContract.Events.EVENT_LOCATION, location)
+                            .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY);
+            startActivity(intent);
+
+            return passed;
         }
-        editTextYear.setTextColor(Color.parseColor("#ff0000"));
-    }
-
-    public void turn_black_date() {
-        dateInvalid = false;
-        Log.i("update", "turn black");
-        editTextDay = (EditText) findViewById(R.id.day);
-        editTextYear = (EditText) findViewById(R.id.year);
-
-        editTextDay.setTextColor(Color.parseColor("#000000"));
-        TextView selectedText = (TextView) spinner_month.getChildAt(0);
-        if (selectedText != null) {
-            selectedText.setTextColor(Color.BLACK);
-        }
-        editTextYear.setTextColor(Color.parseColor("#000000"));
-    }
-
-    public static boolean isValidDate(String inDate) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
-
-        dateFormat.setLenient(false);
-        try {
-            dateFormat.parse(inDate.trim());
-        } catch (ParseException pe) {
-            return false;
-        }
-        return true;
-    }
-
-    public void onItemSelected(AdapterView<?> parent, View view, int position,
-                               long id) {
-
-        switch(parent.getId()){
-            case R.id.month:
-                spinner_month.setSelection(position);
-                selectedSpinnerMonth = Integer.toString(spinner_month.getSelectedItemPosition());
-                break;
-            case R.id.time_hours:
-                spinner_hour.setSelection(position);
-                selectedSpinnerHour = (String) spinner_hour.getSelectedItem();
-                break;
-            case R.id.time_minutes:
-                spinner_minutes.setSelection(position);
-                selectedSpinnerMinutes = (String) spinner_minutes.getSelectedItem();
-                break;
-        }
-        //spinner.setSelection(position);
-        //String selectedMonth = (String) spinnerMonths.getSelectedItem();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> arg0) {
-        // TODO Auto-generated method stub
 
     }
 

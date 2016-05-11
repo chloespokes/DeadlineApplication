@@ -83,15 +83,8 @@ public class ViewDeadlines extends AppCompatActivity  {
         clickSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sync to calendar, needs to be executed in sync button
-                CalendarSyncTask task = new CalendarSyncTask();
-                try{
-                    task.execute(new String[] { "sync to db" });
-                    Log.d(TAG, "Successfully synced deadlines to calendar");
-                }
-                catch(Exception e){
-                    Log.d(TAG, e.getMessage());
-                }
+                //refresh list
+                PopulateImpendingDeadlines();
             }
         });
 
@@ -225,44 +218,6 @@ public class ViewDeadlines extends AppCompatActivity  {
 
         mConfiguredReminders = true;
     }
-
-
-    private class CalendarSyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            String response = "";
-
-            final List<Deadline> finalDeadlines = GetAllDeadlines();
-
-            for (Deadline item : finalDeadlines) {
-
-                if ( !item.getCalendarSync() ) {
-                    //if not already synced to calendar, run sync
-                    Intent intent = new Intent(Intent.ACTION_INSERT)
-                            .setData(Events.CONTENT_URI)
-                            .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, item.getDueDate())
-                            .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, (item.getDueDate() + 3600000)) //add hour
-                            .putExtra(Events.TITLE, item.getTitle())
-                            .putExtra(Events.DESCRIPTION, item.getNotes())
-                            .putExtra(Events.EVENT_LOCATION, "The gym")
-                            .putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
-                    startActivity(intent);
-
-                    //update synced to calendar field as 1
-                    //update DB URI
-                }
-            }
-
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            Log.i("Result",result);
-        }
-    }
-
-
 
 
 }
