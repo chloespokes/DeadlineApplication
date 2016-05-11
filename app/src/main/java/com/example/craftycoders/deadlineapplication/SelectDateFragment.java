@@ -31,17 +31,18 @@ public class SelectDateFragment extends DialogFragment implements DatePickerDial
         populateSetDate(yy, mm+1, dd);
     }
     public void populateSetDate(int year, int month, int day) {
-        Log.d("date", month + "/" + day + "/" + year);
+        String selectedDayFormatted = String.format("%02d", day);
+        String selectedMonthFormatted = String.format("%02d", month);
 
         TextView selectedDate = (TextView) getActivity().findViewById(R.id.selectedDate);
-        selectedDate.setText(String.valueOf(day) + "/" + String.valueOf(month) + "/" + String.valueOf(year));
+        selectedDate.setText(selectedDayFormatted + "/" + selectedMonthFormatted + "/" + String.valueOf(year));
 
         EditText editDay = (EditText) getActivity().findViewById(R.id.day);
         EditText editMonth = (EditText) getActivity().findViewById(R.id.month);
         EditText editYear = (EditText) getActivity().findViewById(R.id.year);
 
-        editDay.setText(String.valueOf(day));
-        editMonth.setText(String.valueOf(month));
+        editDay.setText(selectedDayFormatted);
+        editMonth.setText(selectedMonthFormatted);
         editYear.setText(String.valueOf(year));
     }
 }
