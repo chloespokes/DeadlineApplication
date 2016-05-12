@@ -51,7 +51,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * Created by Chloe on 27/04/16.
  */
-public class AddDeadlines extends FragmentActivity implements OnMapReadyCallback {
+public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallback {
     private String TAG = "AddDeadlinesActivity";
 
     //Edit/resume variables
@@ -107,7 +107,7 @@ public class AddDeadlines extends FragmentActivity implements OnMapReadyCallback
         myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         calendarSync = (Switch) findViewById(R.id.calendar_sync);
 
-        //setSupportActionBar(myToolbar);
+        setSupportActionBar(myToolbar);
 
         setTitle("Add New Deadline");
 
@@ -384,8 +384,8 @@ public class AddDeadlines extends FragmentActivity implements OnMapReadyCallback
             values.put(DeadlinesContract.KEY_TITLE, title);
             values.put(DeadlinesContract.KEY_NOTES, notes);
             values.put(DeadlinesContract.KEY_DUE_DATE, due_date);
-            values.put(DeadlinesContract.KEY_LOC_LAT, longitude);
-            values.put(DeadlinesContract.KEY_LOC_LONG, latitude);
+            values.put(DeadlinesContract.KEY_LOC_LAT, latitude);
+            values.put(DeadlinesContract.KEY_LOC_LONG, longitude);
             values.put(DeadlinesContract.KEY_HAND_IN, false);
 
             ContentResolver contentResolver = getContentResolver();

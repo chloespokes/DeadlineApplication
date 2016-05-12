@@ -44,7 +44,7 @@ public class Utils {
 
         Map<TimeUnit,Long> timeRemaining = computeDiff(currentDateTime, dueDate);
 
-        return timeRemaining.get(TimeUnit.DAYS) + " days "
+        return timeRemaining.get(TimeUnit.DAYS) + " days, "
                 + timeRemaining.get(TimeUnit.HOURS) + " hours, "
                 + timeRemaining.get(TimeUnit.MINUTES) + " minutes, "
                 + timeRemaining.get(TimeUnit.SECONDS) +" seconds remaining ";
