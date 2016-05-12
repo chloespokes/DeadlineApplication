@@ -109,8 +109,6 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
 
         setSupportActionBar(myToolbar);
 
-        setTitle("Add New Deadline");
-
         Bundle b = new Bundle();
         try {
             b = getIntent().getExtras();
@@ -135,7 +133,11 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
             editNotes = b.getString("notes");
             editCalendarSync = b.getBoolean("calendar_sync");
         }
+
         setTitle("Add New Deadline");
+        if (editDeadlines) {
+            setTitle("Edit Deadline");
+        }
         //setContentView(R.layout.activity_add_deadlines);
 
         //set autocomplete to location field

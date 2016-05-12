@@ -189,9 +189,10 @@ public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCal
                     return false;
                 // right to left swipe
                 if (e1.getX() - e2.getX() > 120 && Math.abs(velocityX) > 200) {
-                    editDeadline();
-                } else if (e2.getX() - e1.getX() > 120 && Math.abs(velocityX) > 200) {
                     deleteDeadline();
+                } else if (e2.getX() - e1.getX() > 120 && Math.abs(velocityX) > 200) {
+                    // right to left swipe
+                    editDeadline();
                 }
             } catch (Exception e) {
                 Log.d("GestureDetector", e.getMessage());
@@ -226,9 +227,22 @@ public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCal
     }
 
     public void editDeadline() {
-        Intent resultIntent = new Intent(ViewDeadlineInfo.this.getApplicationContext(), AddDeadlines.class);
-        resultIntent.putExtra("deadlineId", mDeadlineId);
-        startActivity(resultIntent);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Edit this Deadline");
+        builder.setMessage("Are you sure?");
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent resultIntent = new Intent(ViewDeadlineInfo.this.getApplicationContext(), AddDeadlines.class);
+                resultIntent.putExtra("deadlineId", mDeadlineId);
+                startActivity(resultIntent);
+            }
+        });
+
+        builder.setNegativeButton("No", null);
+        builder.show();
     }
 
     // http://www.wolinlabs.com/blog/yes.no.message.box.html
@@ -252,6 +266,7 @@ public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCal
         builder.setNegativeButton("No", null);
         builder.show();
     }
+
     public void onBackPressed() {
         //Go back to ViewDeadlines when back clicked
         Intent intent = new Intent(ViewDeadlineInfo.this, ViewDeadlines.class );
