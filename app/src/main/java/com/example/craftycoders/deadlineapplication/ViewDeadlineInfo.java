@@ -50,17 +50,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
     View.OnTouchListener gestureListener;
     private int mDeadlineId;
 
-    private static final Map<String, LatLng> predefined_locations = new HashMap<String, LatLng>();
-    static
-    {
-        predefined_locations.put("Schofield, Loughborough University", new LatLng( 52.766406, -1.228735 ));
-        predefined_locations.put("Haslegrave, Loughborough University", new LatLng( 52.766769, -1.228994 ));
-        predefined_locations.put("Edward Herbert, Loughborough University", new LatLng( 52.765055, -1.227206 ));
-        predefined_locations.put("Business & Economics, Loughborough University", new LatLng(52.767195, -1.227838 ));
-        predefined_locations.put("James France, Loughborough University", new LatLng( 52.765062, -1.227227 ));
-        predefined_locations.put("Brocklington, Loughborough University", new LatLng( 52.765805, -1.227865 ));
-        predefined_locations.put("Wavy Top, Loughborough University", new LatLng( 52.765351, -1.228155 ));
-    }
+
 
     private Deadline deadline = new Deadline();
 
@@ -100,10 +90,9 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
         boolean predefinedHandInLocation = false;
 
-        for (Map.Entry<String, LatLng> entry : predefined_locations.entrySet())
+        for (Map.Entry<String, LatLng> entry : Utils.predefined_locations.entrySet())
         {
-            if(distance(deadlineLatLng.latitude, deadlineLatLng.longitude, entry.getValue().latitude, entry.getValue().longitude) < 0.0005)
-            {
+            if(Utils.isPredefinedLocation(deadlineLatLng, entry)) {
                 deadlineLocation.setText(entry.getKey());
                 predefinedHandInLocation = true;
                 break;
@@ -112,19 +101,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
         if(!predefinedHandInLocation)
         {
-            Geocoder geocoder;
-            List<Address> addresses = new ArrayList<Address>();
-            geocoder = new Geocoder(this, Locale.getDefault());
-
-            try {
-                addresses = geocoder.getFromLocation(deadlineLatLng.latitude, deadlineLatLng.longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            String thoroughfare = addresses.get(0).getThoroughfare();
-            String address = addresses.get(0).getAddressLine(1); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            deadlineLocation.setText(thoroughfare + ", " + address);
+           deadlineLocation.setText(Utils.getLocationFromLatLng(this, deadlineLatLng));
         }
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -146,8 +123,8 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         Date dueDate = new Date(deadline.getDueDate());
         deadlineEndDate.setText(dateFormat.format(dueDate));
 
-       final TextView deadlineTimeRemaining = (TextView) findViewById(R.id.timeRemaining);
-       deadlineTimeRemaining.setText(Utils.ConvertDueDateToTimeRemaining(deadline.getDueDate()));
+        final TextView deadlineTimeRemaining = (TextView) findViewById(R.id.timeRemaining);
+        deadlineTimeRemaining.setText(Utils.ConvertDueDateToTimeRemaining(deadline.getDueDate()));
 
         final TextView deadlineExtraNotes = (TextView) findViewById(R.id.notes);
         deadlineExtraNotes.setText(deadline.getNotes());
@@ -265,27 +242,5 @@ public class ViewDeadlineInfo extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    // This will need to be cited found on StackOverflow
-    // stackoverflow.com/questions/18170131/comparing-two-locations-using-their-longitude-and-latitude
-    private double distance(double deadlineLat, double deadlineLong, double predefinedLat, double predefinedLong) {
-        double earthRadius = 3958.75;
-
-        double dLat = Math.toRadians(predefinedLat - deadlineLat);
-        double dLong = Math.toRadians(predefinedLong - deadlineLong);
-
-        double sindLat = Math.sin(dLat / 2);
-        double sindLong = Math.sin(dLong / 2);
-
-        double a = (Math.pow(sindLat, 2) + Math.pow(sindLong, 2))
-                * Math.cos(Math.toRadians(deadlineLat))
-                * Math.cos(Math.toRadians(predefinedLat));
-
-        double b = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-        double dist = earthRadius * b;
-
-        return dist;
     }
 }
