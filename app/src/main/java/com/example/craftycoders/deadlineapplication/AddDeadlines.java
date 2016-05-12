@@ -391,8 +391,13 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
             ContentResolver contentResolver = getContentResolver();
 
             try{
-                Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
-                Log.d("ContentProvider", "AddDeadline: Successfully added deadline with uri: " + uri);
+                if (editDeadlines) {
+                    Uri deadlineUri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, mDeadline.getId());
+                    DeadlineRepo.UpdateDeadline(AddDeadlines.this.getContentResolver(), deadlineUri, values);
+                } else {
+                    Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
+                    Log.d("ContentProvider", "AddDeadline: Successfully added deadline with uri: " + uri);
+                }
             }
             catch(Exception e){
                 Log.d("ContentProvider", "AddDeadline: Failed to add" + e.getMessage());
