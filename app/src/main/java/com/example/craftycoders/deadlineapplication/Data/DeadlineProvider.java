@@ -75,10 +75,6 @@ public class DeadlineProvider extends ContentProvider
     public Uri insert(Uri uri, ContentValues values) {
         long rowID = mDbHelper.addDeadline(values);
 
-        /**
-         * If record is added successfully
-         */
-
         if (rowID > 0)
         {
             Uri _uri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, rowID);
