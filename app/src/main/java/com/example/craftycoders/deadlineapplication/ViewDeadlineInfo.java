@@ -1,13 +1,14 @@
 package com.example.craftycoders.deadlineapplication;
 
 import android.content.ContentUris;
-import android.content.ContentValues;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import com.example.craftycoders.deadlineapplication.Models.Deadline;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -43,12 +45,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class ViewDeadlineInfo extends AppCompatActivity {
+public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
     private GestureDetectorCompat mDetector;
     View.OnTouchListener gestureListener;
     private int mDeadlineId;
+    float latitude, longitude;
 
     private static final Map<String, LatLng> predefined_locations = new HashMap<String, LatLng>();
     static
@@ -71,6 +74,7 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         setContentView(R.layout.activity_view_deadline_info);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+
         setSupportActionBar(myToolbar);
 
         Intent intent = getIntent();
@@ -92,11 +96,19 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 //                false);
 
         final LatLng deadlineLatLng = new LatLng(deadline.getLocationLat(), deadline.getLocationLong());
+        latitude = deadline.getLocationLat();
+        longitude = deadline.getLocationLong();
 
         final TextView deadlineTitle = (TextView) findViewById(R.id.title);
         deadlineTitle.setText("Deadline: " + deadline.getTitle());
 
         final TextView deadlineLocation = (TextView) findViewById(R.id.location);
+
+        //setting up map
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
 
         boolean predefinedHandInLocation = false;
 
@@ -131,12 +143,6 @@ public class ViewDeadlineInfo extends AppCompatActivity {
 
         final Marker marker_deadlineLocation = map.addMarker(new MarkerOptions().position(deadlineLatLng));
 
-        // Move the camera instantly to deadlineLocation with a zoom of 13.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(deadlineLatLng, 13));
-
-        // Zoom in, animating the camera.
-        map.animateCamera(CameraUpdateFactory.zoomTo(18), 2000, null);
-
         int dateStyle = DateFormat.LONG;
         int timeStyle = DateFormat.SHORT;
         DateFormat dateFormat;
@@ -146,8 +152,9 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         Date dueDate = new Date(deadline.getDueDate());
         deadlineEndDate.setText(dateFormat.format(dueDate));
 
-       final TextView deadlineTimeRemaining = (TextView) findViewById(R.id.timeRemaining);
-       deadlineTimeRemaining.setText(Utils.ConvertDueDateToTimeRemaining(deadline.getDueDate()));
+        final TextView deadlineTimeRemaining = (TextView) findViewById(R.id.timeRemaining);
+
+        deadlineTimeRemaining.setText(Utils.ConvertDueDateToTimeRemaining(deadline.getDueDate()));
 
         final TextView deadlineExtraNotes = (TextView) findViewById(R.id.notes);
         deadlineExtraNotes.setText(deadline.getNotes());
@@ -212,6 +219,19 @@ public class ViewDeadlineInfo extends AppCompatActivity {
         return mDetector.onTouchEvent(ev);
     }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+        Log.d("lat", Float.toString(latitude));
+        Log.d("long", Float.toString(longitude));
+
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title("Loughborough"));
+        LatLng NEW_LAT = new LatLng(latitude, longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 13));
+        // Zoom in, animating the camera.
+        map.animateCamera(CameraUpdateFactory.zoomTo(18), 2000, null);
+    }
 
     public void editDeadline() {
         Intent resultIntent = new Intent(ViewDeadlineInfo.this.getApplicationContext(), AddDeadlines.class);
