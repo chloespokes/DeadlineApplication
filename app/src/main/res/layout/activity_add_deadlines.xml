@@ -206,8 +206,8 @@
                 <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Handed in?"
-                    android:id="@+id/hand_in"
+                    android:text="Sync with Calendar"
+                    android:id="@+id/calendar_sync"
                     android:layout_gravity="right"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"

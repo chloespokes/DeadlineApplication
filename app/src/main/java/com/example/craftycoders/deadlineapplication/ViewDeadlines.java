@@ -42,7 +42,7 @@ public class ViewDeadlines extends AppCompatActivity implements LoaderManager.Lo
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        setTitle("View Deadlines");
+        setTitle("Impending Deadlines");
 
         //custom loader to load in db deadlines
         this.getLoaderManager().initLoader(5,null,this);
