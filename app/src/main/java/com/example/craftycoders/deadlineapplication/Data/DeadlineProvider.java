@@ -44,7 +44,7 @@ public class DeadlineProvider extends ContentProvider
         Cursor c = null;
         switch (sUriMatcher.match(uri)) {
             case DEADLINES:
-                c = mDbHelper.getAllDeadlinesProvider();
+                c = mDbHelper.getAllDeadlinesProvider(selection, selectionArgs);
                 break;
 
             case DEADLINE_ID:

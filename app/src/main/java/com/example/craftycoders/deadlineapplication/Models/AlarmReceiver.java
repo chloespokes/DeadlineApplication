@@ -23,9 +23,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        Toast.makeText(context,
-                "Checking whether to create notification ", Toast.LENGTH_LONG).show();
-
         for (Deadline deadline : DeadlineRepo.GetAllDeadlines(context.getContentResolver()))
         {
             if(!deadline.getIsHandedIn())
