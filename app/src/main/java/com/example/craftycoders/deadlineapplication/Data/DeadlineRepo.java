@@ -128,7 +128,7 @@ public class DeadlineRepo {
         String[] mSelectionArgs = {uri.getPathSegments().get(1)};
 
         try{
-            int numberOfDeadlinesDeleted = contentResolver.delete(DeadlinesContract.CONTENT_URI, mSelectionClause, mSelectionArgs);
+            int numberOfDeadlinesDeleted = contentResolver.delete(uri, mSelectionClause, mSelectionArgs);
             Log.d("ContentProvider", "DeleteDeadline: Number of deadlines deleted " + numberOfDeadlinesDeleted);
         }
         catch(Exception e){
@@ -144,7 +144,7 @@ public class DeadlineRepo {
         String[] mSelectionArgs = {uri.getPathSegments().get(1)};
 
         try{
-            int numberOfDeadlinesUpdated = contentResolver.update(DeadlinesContract.CONTENT_URI, values, mSelectionClause, mSelectionArgs);
+            int numberOfDeadlinesUpdated = contentResolver.update(uri, values, mSelectionClause, mSelectionArgs);
             Log.d("ContentProvider", "UpdateDeadline: Number of deadlines updated " + numberOfDeadlinesUpdated);
         }
         catch(Exception e){
