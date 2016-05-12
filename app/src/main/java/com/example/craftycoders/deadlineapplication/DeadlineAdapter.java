@@ -70,9 +70,7 @@ public class DeadlineAdapter extends ArrayAdapter<Deadline> {
     private String CreateTimeRemainingString(long deadlineDueDateMs){
 
         // TODO: 30/04/2016 Convert time remaining to string for displaying maybe extract into utils class
-
         String timeRemainingAsString = Utils.ConvertDueDateToTimeRemaining(deadlineDueDateMs);
-
         return timeRemainingAsString;
     }
 
