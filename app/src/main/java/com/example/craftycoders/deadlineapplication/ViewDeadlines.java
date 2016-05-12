@@ -69,14 +69,6 @@ public class ViewDeadlines extends AppCompatActivity implements LoaderManager.Lo
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.standard_menu, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId())
@@ -124,5 +116,9 @@ public class ViewDeadlines extends AppCompatActivity implements LoaderManager.Lo
         mConfiguredReminders = true;
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed(); // this line close the  app on backpress
+    }
 
 }

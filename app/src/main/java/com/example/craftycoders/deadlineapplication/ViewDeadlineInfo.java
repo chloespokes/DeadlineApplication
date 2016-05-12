@@ -119,6 +119,7 @@ public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCal
         }
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        map.getUiSettings().setScrollGesturesEnabled(false);
 
         final Marker marker_deadlineLocation = map.addMarker(new MarkerOptions().position(deadlineLatLng));
 

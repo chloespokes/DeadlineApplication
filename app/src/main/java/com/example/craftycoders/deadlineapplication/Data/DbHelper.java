@@ -157,10 +157,17 @@ public class DbHelper extends SQLiteOpenHelper{
     }
 
     //getAllDeadlines:  returns a List of all deadline in the database
-    public Cursor getAllDeadlinesProvider(){
+    public Cursor getAllDeadlinesProvider(String selection, String[] args){
 
         //Select All Query
         String selectQuery = "SELECT * FROM " + DeadlinesContract.DEADLINE_TABLE_NAME;
+        if(selection != null) {
+            String arg = "";
+            for (String item : args) {
+                arg = arg + item;
+            }
+            selectQuery = selectQuery + " WHERE " + selection + arg;
+        }
         SQLiteDatabase db = this.getWritableDatabase();
         return db.rawQuery(selectQuery, null);
 

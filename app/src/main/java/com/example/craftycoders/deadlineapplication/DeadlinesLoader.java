@@ -57,10 +57,10 @@ public class DeadlinesLoader extends AsyncTaskLoader<ArrayList<Deadline>> {
                 };
 
         // Defines a string to contain the selection clause
-        String mSelectionClause = null;
+        String mSelectionClause = DeadlinesContract.KEY_HAND_IN + " = ";
 
         // Initializes an array to contain selection arguments
-        String[] mSelectionArgs = {""};
+        String[] mSelectionArgs = {"0"};
 
         Cursor mCursor = getContext().getContentResolver().query(
                 DeadlinesContract.CONTENT_URI,
