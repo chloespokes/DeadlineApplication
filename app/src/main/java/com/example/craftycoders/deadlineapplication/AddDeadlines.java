@@ -455,8 +455,15 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void onBackPressed() {
+        Intent intent;
         //Go back to ViewDeadlines when back clicked
-        Intent intent = new Intent(AddDeadlines.this, ViewDeadlines.class );
+        if(editDeadlines){
+            intent = new Intent(AddDeadlines.this, ViewDeadlineInfo.class);
+            intent.putExtra("deadlineId", mDeadline.getId());
+        }
+        else {
+            intent = new Intent(AddDeadlines.this, ViewDeadlines.class );
+        }
         startActivity(intent);
     }
 
