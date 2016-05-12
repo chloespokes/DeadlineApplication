@@ -136,6 +136,22 @@ public class DeadlineRepo {
         }
     }
 
+    public static void UpdateDeadline(ContentResolver contentResolver, Uri uri, ContentValues values) {
+        // Defines a string to contain the selection clause
+        String mSelectionClause = DeadlinesContract.KEY_ID + "=?";
+
+        // Initializes an array to contain selection arguments
+        String[] mSelectionArgs = {uri.getPathSegments().get(1)};
+
+        try{
+            int numberOfDeadlinesUpdated = contentResolver.update(DeadlinesContract.CONTENT_URI, values, mSelectionClause, mSelectionArgs);
+            Log.d("ContentProvider", "UpdateDeadline: Number of deadlines updated " + numberOfDeadlinesUpdated);
+        }
+        catch(Exception e){
+            Log.d("ContentProvider", "UpdateDeadline: Failed to update" + e.getMessage());
+        }
+    }
+
     public static void AddDeadline(ContentResolver contentResolver){
         ContentValues values = new ContentValues();
         values.put(DeadlinesContract.KEY_ID, 10);

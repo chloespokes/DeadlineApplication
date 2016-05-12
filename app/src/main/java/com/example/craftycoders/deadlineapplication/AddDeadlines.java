@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -36,6 +37,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.FragmentActivity;
 import android.net.Uri;
 
+import com.example.craftycoders.deadlineapplication.Data.DeadlineRepo;
 import com.example.craftycoders.deadlineapplication.Data.DeadlinesContract;
 import com.example.craftycoders.deadlineapplication.Models.Deadline;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -73,26 +75,6 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
     int current_hour = calendar.get(Calendar.HOUR_OF_DAY);
     int current_minute = calendar.get(Calendar.MINUTE);
 
-    private static final String[] predefined_locations = new String[] {
-            "Schofield, Loughborough University",
-            "Haslegrave, Loughborough University",
-            "Edward Herbert, Loughborough University",
-            "Business & Economics, Loughborough University",
-            "James France, Loughborough University",
-            "Brocklington, Loughborough University",
-            "Wavy Top, Loughborough University"
-    };
-
-    float[][] predefined_locations_coords = new float[][] {
-            { 52.766406f, -1.228735f }, //schofield
-            { 52.766769f, -1.228994f }, //haslegrave
-            { 52.765055f, -1.227206f }, //ed hertbert
-            { 52.767195f, -1.227838f }, //business
-            { 52.765062f, -1.227227f }, //james france
-            { 52.765805f, -1.227865f }, //brocklington
-            { 52.765351f, -1.228155f } //wavy top
-    };
-
     private GoogleMap map;
 
     EditText editTextTitle, editTextHours, editTextMinutes, editTextDay, editTextMonth, editTextYear, editTextNotesText;
@@ -102,6 +84,8 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
     TextView selectedDate, selectedTime;
     MapFragment mapFragment;
     Switch calendarSync;
+
+    Deadline mDeadline;
 
 
     @Override
@@ -130,52 +114,41 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
         Bundle b = new Bundle();
         try {
             b = getIntent().getExtras();
-            editDeadlines = b.getBoolean("edit");
+            int deadlineId = b.getInt("deadlineId");
+            editDeadlines = deadlineId > 0;
+
+            if(editDeadlines) {
+                populateEditDeadline(deadlineId);
+            }
+
             addResume = b.getBoolean("addResume");
         } catch (NullPointerException e) {
             editDeadlines = false;
             addResume = false;
         }
 
-        //if edit, get deadline object by id from URI
-        if( editDeadlines ) {
+        if ( addResume ) {
             editTitle = b.getString("title");
             editLatitude = b.getFloat("latitude");
             editLongitude = b.getFloat("longitude");
             editDateTime = b.getLong("date_time");
             editNotes = b.getString("notes");
             editCalendarSync = b.getBoolean("calendar_sync");
-
-            setTitle("Edit " + editTitle + " Deadline");
-            //setContentView(R.layout.activity_edit_deadlines);
-        } else {
-            //get bundle from onpause();
-            if ( addResume ) {
-                editTitle = b.getString("title");
-                editLatitude = b.getFloat("latitude");
-                editLongitude = b.getFloat("longitude");
-                editDateTime = b.getLong("date_time");
-                editNotes = b.getString("notes");
-                editCalendarSync = b.getBoolean("calendar_sync");
-            }
-            setTitle("Add New Deadline");
-            //setContentView(R.layout.activity_add_deadlines);
         }
+        setTitle("Add New Deadline");
+        //setContentView(R.layout.activity_add_deadlines);
 
         //set autocomplete to location field
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, predefined_locations);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                Utils.predefined_locations.keySet().toArray(new String[Utils.predefined_locations.keySet().size()]));
         editTextLocation.setAdapter(adapter);
 
         //setting up map
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        if( editDeadlines ) {
-            editTitle = b.getString("title");
-            onLocationChange(map, editTitle, latitude, longitude);
-        }
-
 
         //set date picker
         dueDate = (Button) findViewById(R.id.dueDate);
@@ -201,21 +174,6 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-
-        //set current day, month, year & time
-        //if editDeadline, get date in variables
-        if (editDeadlines) {
-            java.util.Date time = new java.util.Date(editDateTime*1000);
-            // create a calendar
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(time);  //use java.util.Date object as arguement
-            // get the value of all the calendar date fields.
-            editDay = cal.get(Calendar.DATE);
-            editMonth = cal.get(Calendar.MONTH);
-            editYear = cal.get(Calendar.YEAR);
-            editHour = cal.get(Calendar.HOUR_OF_DAY);
-            editMinute = cal.get(Calendar.MINUTE);
-        }
         current_day = ( editDeadlines || addResume ) ? editDay : current_day;
         current_month = ( editDeadlines || addResume ) ? editMonth : (current_month+1);
         current_year = ( editDeadlines || addResume ) ? editYear : current_year;
@@ -238,7 +196,7 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
         selectedDate.setText( current_day + "/" + current_month + "/" + current_year );
         selectedTime.setText( current_hour + ":" + current_minute + time_period );
 
-        if ( editDeadlines || addResume ) {
+        if ( addResume ) {
             //if editing deadlines, add extra notes parsed
             editTextNotesText.setText(editNotes);
         }
@@ -263,14 +221,6 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
                     List<Address> addresses = new ArrayList<>();
                     String selectedLocation = editTextLocation.getText().toString();
 
-                    int index = -1;
-                    for (int i=0;i<predefined_locations.length;i++) {
-                        if (predefined_locations[i].equals(selectedLocation)) {
-                            index = i;
-                            break;
-                        }
-                    }
-
                     try {
                         Log.i("System.out", "Tried");
                         addresses = geocoder.getFromLocationName(selectedLocation, 1);
@@ -281,23 +231,26 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
                             e.printStackTrace();
                     }
 
-                    if ( addresses.size() > 0 || index > -1 ) {
+                    boolean selectedLocationPreDefined = false;
 
-                        if ( addresses.size() > 0 ) {
-                            latitude = addresses.get(0).getLatitude();
-                            longitude = addresses.get(0).getLongitude();
-                        } else {
-                            latitude = predefined_locations_coords[index][0];
-                            longitude = predefined_locations_coords[index][1];
+                    for (Map.Entry<String, LatLng> entry : Utils.predefined_locations.entrySet()) {
+                        if(entry.getKey().equals(selectedLocation)){
+                            latitude = entry.getValue().latitude;
+                            longitude = entry.getValue().longitude;
+                            selectedLocationPreDefined = true;
+                            break;
                         }
+                    }
 
-                        //LatLng NEW_LAT = new LatLng(latitude, longitude);
+                    if ( addresses.size() > 0 && !selectedLocationPreDefined) {
+                        latitude = addresses.get(0).getLatitude();
+                        longitude = addresses.get(0).getLongitude();
+                    }
 
+                    if(addresses.size() > 0 || selectedLocationPreDefined) {
                         onLocationChange(map, selectedLocation, latitude, longitude);
-
-                        // Move the camera instantly to new location with a zoom of 18.
-                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 18));
-                    } else {
+                    }
+                    else {
                         Toast.makeText(AddDeadlines.this,
                                 "Can't find this location - please try again!", Toast.LENGTH_SHORT).show();
                         longitude = 0;
@@ -329,7 +282,8 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
                 .position(new LatLng(latitude, longitude))
                 .title("Loughborough"));
         LatLng NEW_LAT = new LatLng(latitude, longitude);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, 13));
+        int mapZoom = editDeadlines ? 18 : 13;
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NEW_LAT, mapZoom));
     }
 
     public void onLocationChange(GoogleMap map, String location, double latitude, double longitude) {
@@ -342,6 +296,50 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean isEmpty(EditText etText) {
         return etText.getText().toString().trim().length() == 0;
+    }
+
+    private void populateEditDeadline(int deadlineId) {
+        Uri uri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, deadlineId);
+        mDeadline = DeadlineRepo.GetDeadline(AddDeadlines.this.getContentResolver(), uri);
+
+        editTextTitle = (EditText) findViewById(R.id.title);
+        editTextTitle.setText(mDeadline.getTitle());
+
+        boolean predefinedHandInLocation = false;
+
+        latitude = mDeadline.getLocationLat();
+        longitude = mDeadline.getLocationLong();
+
+        LatLng editLatLng = new LatLng(latitude, longitude);
+
+        for (Map.Entry<String, LatLng> entry : Utils.predefined_locations.entrySet())
+        {
+            if(Utils.isPredefinedLocation(editLatLng, entry)) {
+                editTextLocation.setText(entry.getKey());
+                predefinedHandInLocation = true;
+                break;
+            }
+        }
+
+        if(!predefinedHandInLocation)
+        {
+            editTextLocation.setText(Utils.getLocationFromLatLng(this, editLatLng));
+        }
+
+        editDateTime = mDeadline.getDueDate();
+
+        java.util.Date time = new java.util.Date(editDateTime);
+        // create a calendar
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(time);  //use java.util.Date object as arguement
+        // get the value of all the calendar date fields.
+        editDay = cal.get(Calendar.DATE);
+        editMonth = cal.get(Calendar.MONTH) + 1; // Zero Based
+        editYear = cal.get(Calendar.YEAR);
+        editHour = cal.get(Calendar.HOUR_OF_DAY);
+        editMinute = cal.get(Calendar.MINUTE);
+
+        editTextNotesText.setText(mDeadline.getNotes());
     }
 
     public void addNewDeadline(View view) throws ParseException {
@@ -393,8 +391,13 @@ public class AddDeadlines extends AppCompatActivity implements OnMapReadyCallbac
             ContentResolver contentResolver = getContentResolver();
 
             try{
-                Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
-                Log.d("ContentProvider", "AddDeadline: Successfully added deadline with uri: " + uri);
+                if (editDeadlines) {
+                    Uri deadlineUri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, mDeadline.getId());
+                    DeadlineRepo.UpdateDeadline(AddDeadlines.this.getContentResolver(), deadlineUri, values);
+                } else {
+                    Uri uri = contentResolver.insert(DeadlinesContract.CONTENT_URI, values);
+                    Log.d("ContentProvider", "AddDeadline: Successfully added deadline with uri: " + uri);
+                }
             }
             catch(Exception e){
                 Log.d("ContentProvider", "AddDeadline: Failed to add" + e.getMessage());
