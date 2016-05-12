@@ -1,7 +1,9 @@
 package com.example.craftycoders.deadlineapplication;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
@@ -22,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +55,7 @@ public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCal
     View.OnTouchListener gestureListener;
     private int mDeadlineId;
     float latitude, longitude;
+    Switch isHandedInSwitch;
 
     private Deadline deadline = new Deadline();
 
@@ -142,6 +146,20 @@ public class ViewDeadlineInfo extends AppCompatActivity implements OnMapReadyCal
 
         ViewGroup scrollView = (ViewGroup) findViewById(R.id.scrollView2);
         recursiveLoopChildren(scrollView);
+
+        isHandedInSwitch = (Switch) findViewById(R.id.hand_in);
+        if (isHandedInSwitch != null) {
+            isHandedInSwitch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ContentValues values = new ContentValues();
+                    values.put(DeadlinesContract.KEY_HAND_IN, isHandedInSwitch.isChecked());
+
+                    Uri deadlineUri = ContentUris.withAppendedId(DeadlinesContract.CONTENT_URI, mDeadlineId);
+                    DeadlineRepo.UpdateDeadline(ViewDeadlineInfo.this.getContentResolver(), deadlineUri, values);
+                }
+            });
+        }
     }
 
     private void recursiveLoopChildren(ViewGroup parent) {
